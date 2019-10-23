@@ -16,7 +16,6 @@ public class PlayerInfoManager : MonoBehaviour
 
     private void Awake()
     {
-        PlayerPrefs.DeleteAll();
         if (Instance == null)
             Instance = this;
         else
@@ -26,7 +25,5 @@ public class PlayerInfoManager : MonoBehaviour
 
         if (!PlayerPrefs.HasKey(KEY_LEVELS_UNLOCKED))
             LevelsUnlocked = 1;
-
-        LevelsUnlocked = 6;
     }
 }

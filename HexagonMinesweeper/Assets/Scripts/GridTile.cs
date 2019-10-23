@@ -10,8 +10,36 @@ using UnityEngine.UI;
 public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
 
-    public List<GridTile> Neighbours;
+    #region Variables
+    #region Editor
+    [SerializeField] private Color bombColor;
 
+    [SerializeField] private Color safeColor;
+
+    [SerializeField] private Color warningColor;
+
+    [SerializeField] private Color dangerousColor;
+
+    [SerializeField] private Color alertColor;
+    #endregion
+    #region Public
+    public List<GridTile> Neighbours;
+    public bool IsBomb { get; private set; }
+    public bool IsDisarmed { get; private set; }
+    public bool HasFlipped { get; private set; }
+    public bool IsCheckingDisarm { get; private set; }
+    public bool IsSafe { get; private set; }
+    public Vector3 Position;
+
+    public Dictionary<GridTile, int> colours = new Dictionary<GridTile, int>();
+
+    public bool IsRemovingBomb { get; private set; }
+
+    public bool IsAnimating { get; private set; }
+
+    public List<GridTile> RemovedBombs = new List<GridTile>();
+    #endregion
+    #region Private
     private Vector3[] positions =
     {
         new Vector2(0, 220),
@@ -34,57 +62,27 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private int colorIndex = 3;
 
-    public bool IsBomb { get; private set; }
-
-    [SerializeField] private Color bombColor;
-
-    [SerializeField] private Color safeColor;
-
-    [SerializeField] private Color warningColor;
-
-    [SerializeField] private Color dangerousColor;
-
-    [SerializeField] private Color alertColor;
-
     private Color storedColor = Color.clear;
 
     private EventSystem currentEventSystem;
 
     private bool isHovering;
-
-    public bool IsDisarmed { get; private set; }
-
     private List<GridTile> neighbourBombs = new List<GridTile>();
-
-    public bool HasFlipped { get; private set; }
-
-    public bool IsCheckingDisarm { get; private set; }
-
-    public bool IsSafe { get; private set; }
-
     private List<GridTile> allTiles = new List<GridTile>();
-
-    public Vector3 Position;
-
-    public Dictionary<GridTile, int> colours = new Dictionary<GridTile, int>();
-
-    public bool IsRemovingBomb { get; private set; }
-
-    public bool IsAnimating { get; private set; }
-
-    public List<GridTile> RemovedBombs = new List<GridTile>();
-
     private bool hasAnimatedDisarm;
 
     private Color startColour;
+    #endregion
+    #endregion
 
+    #region Methods
+    #region Unity
     private void Awake()
     {
         background = GetComponent<Image>();
         startColour = background.color;
         button = GetComponent<Button>();
         LeanTween.init(1600);
-        ///button.onClick.AddListener(Flip);
     }
 
     private void Update()
@@ -93,6 +91,17 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             Flip();
     }
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        isHovering = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        isHovering = false;
+    }
+    #endregion
+    #region Public
     public void GetNeighbours(List<GridTile> allInstantiatedTiles)
     {
         storedColor = safeColor;
@@ -100,18 +109,15 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         allTiles = allInstantiatedTiles;
 
         Vector3 newPos = Vector3.zero;
-        //List<Vector3> positionsToCheck = new List<Vector3>();
         for (int i = 0; i < positions.Length; i++)
         {
             Vector3 pos = ((RectTransform)transform).anchoredPosition;
             newPos = pos + positions[i];
-            //positionsToCheck.Add(newPos);
 
             GameObject neighbourObj = GameObject.Find(newPos.ToString());
             if (neighbourObj != null)
                 Neighbours.Add(neighbourObj.GetComponent<GridTile>());
         }
-        //AddNeighboursAtPositions(positionsToCheck);
     }
 
     public void SetBomb(bool show = false)
@@ -133,21 +139,15 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         for (int i = 0; i < Neighbours.Count; i++)
         {
-            if (!tilesSet.Contains(Neighbours[i]) /*&& !Neighbours[i].colours.Keys.Contains(this)*/)
+            if (!tilesSet.Contains(Neighbours[i]))
             {
                 Neighbours[i].SetColor(0, this);
             }
-
-            if (Neighbours[i].colours.Keys.Count >= 1)
-                Debug.Log("Already added a colour", Neighbours[i].gameObject);
-
-            
-
             GridTile neighbour = Neighbours[i];
 
             for (int a = 0; a < neighbour.Neighbours.Count; a++)
             {
-                if (!tilesSet.Contains(neighbour.Neighbours[a]) /*&& !neighbour.Neighbours[a].colours.Keys.Contains(this)*/)
+                if (!tilesSet.Contains(neighbour.Neighbours[a]))
                 {
                     neighbour.Neighbours[a].SetColor(1, this);
                 }
@@ -156,7 +156,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
                 for (int b = 0; b < nextNeighbour.Neighbours.Count; b++)
                 {
-                    if (tilesSet.Contains(nextNeighbour.Neighbours[b]) /*|| nextNeighbour.Neighbours[b].colours.Keys.Contains(this)*/)
+                    if (tilesSet.Contains(nextNeighbour.Neighbours[b]))
                         continue;
                     nextNeighbour.Neighbours[b].SetColor(2, this);
                 }
@@ -168,9 +168,6 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (IsBomb || colorIndex < colorToSet)
             return;
-
-        if (colours.Count > 1)
-            Debug.Log("Testing");
 
         switch (colorToSet)
         {
@@ -195,50 +192,6 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             background.color = storedColor;
     }
 
-    private void Flip()
-    {
-        if (storedColor == Color.clear)
-            storedColor = safeColor;
-
-        if (!IsBomb)
-            LeanTween.color((RectTransform)transform, storedColor, 0.25f).setEase(LeanTweenType.easeInOutSine);
-
-        LeanTween.scale(gameObject, Vector3.one * 1.2f, 0.1f).setEase(LeanTweenType.easeInOutSine)
-            .setOnComplete(() =>
-                {
-                    LeanTween.scale(gameObject, Vector3.one, 0.15f).setEase(LeanTweenType.easeInOutSine);
-                });
-
-        //background.color = storedColor;
-        button.interactable = false;
-        background.raycastTarget = false;
-        HasFlipped = true;
-
-        if (IsBomb)
-        {
-            GridGenerator.Instance.SetInteractability(false);
-            StartCoroutine(AnimateBombExplosion());
-            GameManager.Instance.SetGameOver();
-            return;
-        }
-        foreach (GridTile bomb in neighbourBombs)
-        {
-            bomb.CheckForDisarm();
-        }
-
-        
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        isHovering = true;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        isHovering = false;
-    }
-
     public void CheckForDisarm()
     {
         IsCheckingDisarm = true;
@@ -255,14 +208,14 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 }
 
                 continue;
-            }   
+            }
             else if (!tile.HasFlipped)
             {
                 bombActive = true;
                 break;
             }
         }
-            
+
 
         if (!bombActive)
         {
@@ -302,69 +255,6 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     }
 
-    private IEnumerator AnimateDisarm()
-    {
-        yield return new WaitUntil(() => !GridGenerator.Instance.IsAnimating);
-        GridGenerator.Instance.IsAnimating = true;
-        if (hasAnimatedDisarm)
-            yield break;
-        hasAnimatedDisarm = true;
-        yield return new WaitForSeconds(1f);
-
-        Dictionary<int, List<List<GridTile>>> neighboursToLoop = new Dictionary<int, List<List<GridTile>>>();
-        List<List<GridTile>> tiles = new List<List<GridTile>>();
-        tiles.Add(Neighbours);
-        neighboursToLoop.Add(0, tiles);
-
-        bool isEnd = GameManager.Instance.BombsToDestroy == 1;
-
-        int amountOfTimes = isEnd ? 14 : 3;
-
-        for (int i = 0; i < amountOfTimes; i++)
-        {
-            if (!isEnd)
-            {
-                if (neighboursToLoop.Keys.Count <= i)
-                    break;
-            }
-            
-            List<List<GridTile>> newNeighbours = new List<List<GridTile>>();
-            for (int a = 0; a < neighboursToLoop[i].Count; a++)
-            {
-                for (int b = 0; b < neighboursToLoop[i][a].Count; b++)
-                {
-                    if (!neighboursToLoop[i][a][b].RemovedBombs.Contains(this))
-                    {
-                        neighboursToLoop[i][a][b].RemoveBomb(i, this, isEnd);
-                        if (isEnd)
-                        {
-                            LeanTween.color((RectTransform)neighboursToLoop[i][a][b].transform, safeColor, 0.1f);
-                        }
-
-                        neighboursToLoop[i][a][b].IsAnimating = true;
-                        newNeighbours.Add(neighboursToLoop[i][a][b].Neighbours);
-                    }
-                    /*if (!neighboursToLoop[i][a][b].IsAnimating)
-                    {
-                        
-                    }*/
-                }
-
-            }
-            neighboursToLoop.Add(i + 1, newNeighbours);
-            yield return new WaitForSeconds(0.05f);
-        }
-
-        /*foreach (GridTile neighbour in Neighbours)
-            neighbour.RemoveBomb(0, this);*/
-
-        GridGenerator.Instance.DisarmBomb(this);
-        GridGenerator.Instance.IsAnimating = false;
-        yield return new WaitForSeconds(1f);
-        
-        GameManager.Instance.DisarmBomb();
-    }
-
     public void RemoveBomb(int layer, GridTile bomb, bool isEnd)
     {
         if (RemovedBombs.Contains(bomb))
@@ -373,55 +263,14 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         if (isEnd)
             return;
-        //IsRemovingBomb = true;
         if (neighbourBombs.Contains(bomb))
             neighbourBombs.Remove(bomb);
 
         storedColor = safeColor;
 
-        //colours.Remove(bomb);
-
         colorIndex = 3;
-
-        /*if (colours.Count != 0)
-        {
-            int lowestColour = 3;
-            foreach (GridTile key in colours.Keys)
-            {
-                if (colours[key] < lowestColour)
-                    lowestColour = colours[key];
-            }
-            switch (lowestColour)
-            {
-                case 0:
-                    storedColor = alertColor;
-                    break;
-                case 1:
-                    storedColor = dangerousColor;
-                    break;
-                case 2:
-                    storedColor = warningColor;
-                    break;
-            }
-        }
-        else
-        {
-            storedColor = safeColor;
-        }*/
-
-        
-
         if (HasFlipped)
             background.color = storedColor;
-
-        //IsRemovingBomb;
-
-        /*layer++;
-        if (layer <= 2)
-        {
-            foreach (GridTile neighbour in Neighbours)
-                neighbour.RemoveBomb(layer, bomb);
-        }*/
 
     }
 
@@ -447,6 +296,8 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         IsAnimating = false;
         RemovedBombs = new List<GridTile>();
         hasAnimatedDisarm = false;
+        transform.localScale = Vector3.one;
+        GetComponent<CanvasGroup>().alpha = 0f;
     }
 
     public void AddNeighboursAtPositions(List<Vector3> positions)
@@ -461,9 +312,104 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 if (neighbours >= 6)
                     return;
             }
-                
+
         }
     }
+    #endregion
+    #region Private
+
+    private void Flip()
+    {
+        if (storedColor == Color.clear)
+            storedColor = safeColor;
+
+        if (!IsBomb)
+            LeanTween.color((RectTransform)transform, storedColor, 0.25f).setEase(LeanTweenType.easeInOutSine);
+
+        LeanTween.scale(gameObject, Vector3.one * 1.2f, 0.1f).setEase(LeanTweenType.easeInOutSine)
+            .setOnComplete(() =>
+                {
+                    LeanTween.scale(gameObject, Vector3.one, 0.15f).setEase(LeanTweenType.easeInOutSine);
+                });
+
+        button.interactable = false;
+        background.raycastTarget = false;
+        HasFlipped = true;
+
+        if (IsBomb)
+        {
+            GridGenerator.Instance.SetInteractability(false);
+            StartCoroutine(AnimateBombExplosion());
+            
+            return;
+        }
+        foreach (GridTile bomb in neighbourBombs)
+        {
+            bomb.CheckForDisarm();
+        }
+    }
+
+    private IEnumerator AnimateDisarm()
+    {
+        yield return new WaitUntil(() => !GridGenerator.Instance.IsAnimating);
+        GridGenerator.Instance.IsAnimating = true;
+        if (hasAnimatedDisarm)
+            yield break;
+        hasAnimatedDisarm = true;
+        yield return new WaitForSeconds(1f);
+
+        Dictionary<int, List<List<GridTile>>> neighboursToLoop = new Dictionary<int, List<List<GridTile>>>();
+        List<List<GridTile>> tiles = new List<List<GridTile>>();
+        tiles.Add(Neighbours);
+        neighboursToLoop.Add(0, tiles);
+
+        bool isEnd = GameManager.Instance.BombsToDestroy == 1;
+
+        int amountOfTimes = isEnd ? 14 : 3;
+        List<GridTile> animatedTiles = new List<GridTile>();
+
+        for (int i = 0; i < amountOfTimes; i++)
+        {
+            if (!isEnd)
+            {
+                if (neighboursToLoop.Keys.Count <= i)
+                    break;
+            }
+            
+            List<List<GridTile>> newNeighbours = new List<List<GridTile>>();
+            for (int a = 0; a < neighboursToLoop[i].Count; a++)
+            {
+                for (int b = 0; b < neighboursToLoop[i][a].Count; b++)
+                {
+                    if (!neighboursToLoop[i][a][b].RemovedBombs.Contains(this))
+                    {
+                        neighboursToLoop[i][a][b].RemoveBomb(i, this, isEnd);
+                        if (isEnd)
+                        {
+                            LeanTween.color((RectTransform)neighboursToLoop[i][a][b].transform, safeColor, 0.1f);
+                        }
+
+                        neighboursToLoop[i][a][b].IsAnimating = true;
+                        newNeighbours.Add(neighboursToLoop[i][a][b].Neighbours);
+                        animatedTiles.Add(neighboursToLoop[i][a][b]);
+                    }
+                }
+
+            }
+            neighboursToLoop.Add(i + 1, newNeighbours);
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        GridGenerator.Instance.DisarmBomb(this);
+        GridGenerator.Instance.IsAnimating = false;
+        yield return new WaitForSeconds(1f);
+        foreach (GridTile tile in animatedTiles)
+            tile.IsAnimating = false;
+        
+        GameManager.Instance.DisarmBomb();
+    }
+
+    
 
     private IEnumerator AnimateBombExplosion()
     {
@@ -507,10 +453,10 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             neighboursToLoop.Add(i + 1, newNeighbours);
             yield return new WaitForSeconds(0.05f);
         }
-    }
 
-    /*private IEnumerator ResetAnimating()
-    {
         yield return new WaitForSeconds(0.5f);
-    }*/
+        GameManager.Instance.SetGameOver();
+    }
+    #endregion
+    #endregion
 }

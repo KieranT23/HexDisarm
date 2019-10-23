@@ -11,17 +11,33 @@ using Debug = System.Diagnostics.Debug;
 public class GridGenerator : MonoBehaviour
 {
 
+    #region Variables
+    #region Static
     public static GridGenerator Instance;
-
-    private List<GridTile> gridTiles = new List<GridTile>();
-
-    private List<GameObject> holders = new List<GameObject>();
-
+    #endregion
+    #region Editor
     [SerializeField] private GridTile gridTilePrefab;
 
     [SerializeField] private RectTransform hexContent;
 
     [SerializeField] private GameObject holderPrefab;
+    #endregion
+    #region Public
+    public bool IsGeneratingGrid { get; private set; }
+    public bool IsAnimating;
+    #endregion
+    #region Private
+    private List<GridTile> gridTiles = new List<GridTile>();
+
+    private List<GameObject> holders = new List<GameObject>();
+
+    private Vector2 top = new Vector2(0, 220);
+    private Vector2 topRight = new Vector2(200, 110);
+    private Vector2 bottomRight = new Vector2(200, -110);
+    private Vector2 bottom = new Vector2(0, -220);
+    private Vector2 bottomLeft = new Vector2(-200, -110);
+    private Vector2 topLeft = new Vector2(-200, 110);
+    private List<Vector3> posOfObjects = new List<Vector3>();
 
     private int gridRadius = 6;
 
@@ -31,29 +47,19 @@ public class GridGenerator : MonoBehaviour
     private float xMovementAmount = 200;
     private float yMovementAmount = 110;
 
-    Vector2 top = new Vector2(0, 220);
-    Vector2 topRight = new Vector2(200, 110);
-    Vector2 bottomRight = new Vector2(200, -110);
-    Vector2 bottom = new Vector2(0, -220);
-    Vector2 bottomLeft = new Vector2(-200, -110);
-    Vector2 topLeft = new Vector2(-200, 110);
-
-    List<Vector3> posOfObjects = new List<Vector3>();
-
     private List<int> LevelInfo = new List<int>();
 
     private int seed = 1;
-
     private int numberOfBombsToShow = 0;
-
     private bool hasGeneratedBefore = false;
-
-    public bool IsGeneratingGrid { get; private set; }
-
     private List<GridTile> instantiatedBombs = new List<GridTile>();
 
-    public bool IsAnimating;
+    private int timesGenerated = 0;
+    #endregion
+    #endregion
 
+    #region Methods
+    #region Unity
     private void Awake()
     {
         if (Instance == null)
@@ -71,9 +77,19 @@ public class GridGenerator : MonoBehaviour
             ResetGrid();
         }
     }
+    #endregion
+    #region Public
 
-    public IEnumerator GenerateGrid(List<int> levelInfo)
+    public IEnumerator GenerateGrid(List<int> levelInfo, bool levelCompleted = false)
     {
+        timesGenerated++;
+        if (timesGenerated >= 5 && levelCompleted)
+        {
+            timesGenerated = 0;
+            AdManager.Instance.ShowInGameAd();
+            yield return null;
+            yield return new WaitUntil(() => !AdManager.Instance.IsShowingAd);
+        }
         SetGridScale(levelInfo[0]);
         IsGeneratingGrid = true;
         if (hasGeneratedBefore)
@@ -83,7 +99,7 @@ public class GridGenerator : MonoBehaviour
                 yield return new WaitForSeconds(0.5f);
                 DestroyGrid();
                 yield return new WaitForSeconds(2f);
-            } 
+            }
             else
             {
                 yield return new WaitForSeconds(0.5f);
@@ -96,9 +112,9 @@ public class GridGenerator : MonoBehaviour
                 numberOfBombsToShow = LevelInfo[2];
                 yield break;
             }
-                
+
         }
-        
+
         LevelInfo = levelInfo;
 
         gridRadius = LevelInfo[0];
@@ -152,68 +168,6 @@ public class GridGenerator : MonoBehaviour
         StartCoroutine(WaitBeforeNeighbours());
     }
 
-    private void CreateGrid(Vector3 pos, Transform parent = null)
-    {
-        if (posOfObjects.Contains(pos))
-            return;
-
-        posOfObjects.Add(pos);
-        GridTile instantiatedObject = Instantiate(gridTilePrefab, parent == null ? hexContent : parent);
-        ((RectTransform) instantiatedObject.transform).anchoredPosition = pos;
-        instantiatedObject.Position = pos;
-        gridTiles.Add(instantiatedObject);
-        instantiatedObject.name = pos.ToString();
-        
-    }
-
-    private IEnumerator WaitBeforeNeighbours()
-    {
-        yield return new WaitForSeconds(1.0f);
-
-        List<int> bombs = new List<int>();
-        for (int i = 0; i < numberOfBombs; i++)
-        {
-            Random.InitState(LevelInfo[3 + i]);
-            int bomb = 0;
-            do
-                bomb = Random.Range(0, gridTiles.Count);
-            while (bombs.Contains(bomb));
-            bombs.Add(bomb);
-        }
-
-        for (int a = 0; a < gridTiles.Count; a++)
-        {
-            gridTiles[a].GetNeighbours(gridTiles);
-            /*if (bombs.Contains(i))
-                gridTiles[i].SetBomb();*/
-        }
-
-        StartCoroutine(AnimateInGrid());
-        StartCoroutine(UIController.Instance.AnimateInUI());
-        yield return new WaitForSeconds(1f);
-
-
-        int bombsShown = 0;
-        for (int b = 0; b < gridTiles.Count; b++)
-        {
-            int incrementer = b;
-            //gridTiles[i].GetNeighbours();
-            if (bombs.Contains(b))
-            {
-                gridTiles[b].SetBomb(bombsShown < numberOfBombsToShow);
-                if (bombsShown == 0)
-                    StartCoroutine(UIController.Instance.AnimateInBombsRemaining());
-
-                bombsShown++;
-
-                instantiatedBombs.Add(gridTiles[b]);
-            }    
-        }
-
-        hasGeneratedBefore = true;
-        IsGeneratingGrid = false;
-    }
-
     public void ResetGrid()
     {
         foreach (GridTile tile in gridTiles)
@@ -234,37 +188,6 @@ public class GridGenerator : MonoBehaviour
         gridTiles = new List<GridTile>();
         holders = new List<GameObject>();
         posOfObjects = new List<Vector3>();
-    }
-
-    private void SetGridScale(int radius)
-    {
-        float scale = 0;
-        switch (radius)
-        {
-            case 3:
-                scale = 0.6f;
-                break;
-            case 4:
-                scale = 0.6f;
-                break;
-            case 5:
-                scale = 0.5f;
-                break;
-            case 6:
-                scale = 0.4f;
-                break;
-            case 7:
-                scale = 0.3f;
-                break;
-            case 8:
-                scale = 0.275f;
-                break;
-            case 9:
-                scale = 0.25f;
-                break;
-        }
-
-        hexContent.localScale = Vector3.one * scale;
     }
 
     public GridTile GetTileAtPosition(Vector3 pos)
@@ -302,4 +225,124 @@ public class GridGenerator : MonoBehaviour
         foreach (GridTile tile in instantiatedBombs)
             tile.SetBomb();
     }
+
+    public void QuitGame()
+    {
+        StartCoroutine(AnimateQuit());
+    }
+    #endregion
+    #region Private
+    private void CreateGrid(Vector3 pos, Transform parent = null)
+    {
+        if (posOfObjects.Contains(pos))
+            return;
+
+        posOfObjects.Add(pos);
+        GridTile instantiatedObject = Instantiate(gridTilePrefab, parent == null ? hexContent : parent);
+        ((RectTransform) instantiatedObject.transform).anchoredPosition = pos;
+        instantiatedObject.Position = pos;
+        gridTiles.Add(instantiatedObject);
+        instantiatedObject.name = pos.ToString();
+        
+    }
+
+    private IEnumerator WaitBeforeNeighbours()
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        List<int> bombs = new List<int>();
+        for (int i = 0; i < numberOfBombs; i++)
+        {
+            Random.InitState(LevelInfo[3 + i]);
+            int bomb = 0;
+            do
+                bomb = Random.Range(0, gridTiles.Count);
+            while (bombs.Contains(bomb));
+            bombs.Add(bomb);
+        }
+
+        for (int a = 0; a < gridTiles.Count; a++)
+        {
+            gridTiles[a].GetNeighbours(gridTiles);
+        }
+
+        StartCoroutine(AnimateInGrid());
+        StartCoroutine(UIController.Instance.AnimateInUI());
+        yield return new WaitForSeconds(1f);
+
+
+        int bombsShown = 0;
+        for (int b = 0; b < gridTiles.Count; b++)
+        {
+            int incrementer = b;
+            if (bombs.Contains(b))
+            {
+                gridTiles[b].SetBomb(bombsShown < numberOfBombsToShow);
+                if (bombsShown == 0)
+                    StartCoroutine(UIController.Instance.AnimateInBombsRemaining());
+
+                bombsShown++;
+
+                instantiatedBombs.Add(gridTiles[b]);
+            }    
+        }
+
+        SetInteractability(true);
+        AdManager.Instance.ShowBanner();
+        hasGeneratedBefore = true;
+        IsGeneratingGrid = false;
+    }
+
+    private void SetGridScale(int radius)
+    {
+        float scale = 0;
+        switch (radius)
+        {
+            case 3:
+                scale = 0.6f;
+                break;
+            case 4:
+                scale = 0.6f;
+                break;
+            case 5:
+                scale = 0.5f;
+                break;
+            case 6:
+                scale = 0.4f;
+                break;
+            case 7:
+                scale = 0.3f;
+                break;
+            case 8:
+                scale = 0.275f;
+                break;
+            case 9:
+                scale = 0.25f;
+                break;
+        }
+
+        hexContent.localScale = Vector3.one * scale;
+    }
+
+    private IEnumerator AnimateQuit()
+    {
+        for (int i = gridTiles.Count - 1; i >= 0; i--)
+        {
+            if (i == 1 || i == 7 || i == 19 || i == 37 || i == 61 || i == 91 || i == 127)
+                yield return new WaitForSeconds(0.05f);
+
+            LeanTween.scale(gridTiles[i].gameObject, Vector3.zero, 0.1f)
+                .setEase(LeanTweenType.easeInSine);
+        }
+
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    public IEnumerator AnimateSkip(List<int> levelInfo)
+    {
+        yield return AnimateQuit();
+        StartCoroutine(GenerateGrid(levelInfo));
+    }
+    #endregion
+    #endregion 
 }
