@@ -118,6 +118,13 @@ public class UIController : MonoBehaviour
     }
     #endregion
     #region Public
+
+    public void InitSettingsButtons()
+    {
+        btn_audio.GetComponent<AudioButton>().Init();
+        btn_vibration.GetComponent<VibrationButton>().Init();
+    }
+
     public void UpdateLevel(int level)
     {
         levelText.text = level.ToString();

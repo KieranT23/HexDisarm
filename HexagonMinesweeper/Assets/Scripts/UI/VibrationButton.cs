@@ -16,4 +16,10 @@ public class VibrationButton : SettingsButton
         base.ToggleState();
         PlayerInfoManager.Instance.VibrationOn = isOn;
     }
+
+    public void Init()
+    {
+        isOn = PlayerInfoManager.Instance.VibrationOn;
+        SetButtonState(isOn);
+    }
 }

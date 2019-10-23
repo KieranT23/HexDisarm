@@ -37,6 +37,14 @@ public class LevelSelection : MonoBehaviour
 
     private int unlockedLevels = 10;
 
+    [SerializeField] private RectTransform scrollRect;
+
+    [SerializeField] private RectTransform returnIcon;
+
+    [SerializeField] private Button btn_return;
+
+    [SerializeField] private RectTransform mainCanvas;
+
     private void Awake()
     {
         if (Instance == null)
@@ -55,7 +63,9 @@ public class LevelSelection : MonoBehaviour
             CreateLevel();
         }
 
-        scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
+        btn_return.onClick.AddListener(() => StartCoroutine(AnimateLevelSelectToStartScreen()));
+
+        //scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
     }
 
     private void CreateLevel()
@@ -211,5 +221,60 @@ public class LevelSelection : MonoBehaviour
         levels[level].Init(level, true, true, false, lastUnlockedColor, unlockedTextColor);
         transitions[level - 1].Init(lastUnlockedColor);
         levels[level + 1].Init(level + 1, false, false, true, lockedColor, lockedTextColor);
+    }
+
+    public IEnumerator AnimateIn()
+    {
+        float screenHeight = mainCanvas.sizeDelta.y;
+        scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight);
+        float testObjectPos = testObject.anchoredPosition.y;
+        if (testObjectPos < 0)
+            testObjectPos = 0;
+        float movementAmount = screenHeight + testObjectPos;
+
+        LeanTween.value(gameObject, 0f, movementAmount, 2f).setEase(LeanTweenType.easeInOutQuad).setOnUpdate(
+            (float value) =>
+            {
+                if (value <= screenHeight)
+                {
+                    scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight - value);
+                }
+                else
+                {
+                    scrollRect.anchoredPosition = Vector2.zero;
+                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, screenHeight - value);
+                }
+            });
+
+        returnIcon.localScale = Vector3.zero;
+        LeanTween.scale(returnIcon, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+        yield return null;
+    }
+
+    private IEnumerator AnimateLevelSelectToStartScreen()
+    {
+        float screenHeight = mainCanvas.sizeDelta.y;
+        float testObjectPos = -scrollContent.anchoredPosition.y;
+        float movementAmount = screenHeight + testObjectPos;
+        LeanTween.scale(returnIcon, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
+        LeanTween.value(gameObject, 0f, movementAmount, 2f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                float testValue = value;
+                if (value <= testObjectPos)
+                {
+                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, -(testObjectPos - value));
+                }
+                else
+                {
+                    scrollContent.anchoredPosition = Vector2.zero;
+                    scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, value - testObjectPos);
+                }
+            });
+        yield return new WaitForSeconds(3f);
+        StartScreen.Instance.gameObject.SetActive(true);
+        StartCoroutine(StartScreen.Instance.AnimateIn());
+
+        //scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight);
     }
 }
