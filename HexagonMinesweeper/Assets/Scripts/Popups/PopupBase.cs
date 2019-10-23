@@ -7,20 +7,18 @@ using UnityEngine.UI;
 
 public class PopupBase : MonoBehaviour
 {
-    [SerializeField] private Button btn_close;
-
-    [SerializeField] private Button btn_continue;
-
     [SerializeField] private CanvasGroup img_dim;
 
     //private void 
 
-    public void Init(UnityAction closeAction = null, UnityAction continueAction = null)
+    protected virtual void Start()
     {
-        btn_close.onClick.AddListener(closeAction);
-        btn_close.onClick.AddListener(AnimateOut);
-        btn_continue.onClick.AddListener(AnimateOut);
-        btn_continue.onClick.AddListener(continueAction);
+        transform.localScale = Vector3.zero;
+        gameObject.SetActive(false);
+    }
+
+    public void Init()
+    {
         AnimateIn();
     }
 
@@ -33,6 +31,7 @@ public class PopupBase : MonoBehaviour
 
     public void AnimateOut()
     {
-
+        LeanTween.alphaCanvas(img_dim, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.scale(gameObject, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
     }
 }

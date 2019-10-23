@@ -83,12 +83,21 @@ public class GridGenerator : MonoBehaviour
     public IEnumerator GenerateGrid(List<int> levelInfo, bool levelCompleted = false)
     {
         timesGenerated++;
-        if (timesGenerated >= 5 && levelCompleted)
+        PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback++;
+        if (levelCompleted)
         {
-            timesGenerated = 0;
-            AdManager.Instance.ShowInGameAd();
-            yield return null;
-            yield return new WaitUntil(() => !AdManager.Instance.IsShowingAd);
+            if (timesGenerated >= 5)
+            {
+                timesGenerated = 0;
+                AdManager.Instance.ShowInGameAd();
+                yield return null;
+                yield return new WaitUntil(() => !AdManager.Instance.IsShowingAd);
+            }
+            else if (PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback >= 13)
+            {
+                PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback = 0;
+                PopupManager.Instance.ShowFeedbackPopup();
+            }
         }
         SetGridScale(levelInfo[0]);
         IsGeneratingGrid = true;
