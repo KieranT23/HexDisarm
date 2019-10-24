@@ -14,6 +14,10 @@ public class AdManager : MonoBehaviour
 
     public bool IsShowingAd { get; private set; }
 
+    private bool hasRemovedAds;
+
+    [SerializeField] private CanvasGroup[] noAdsButtons;
+
     private void Awake()
     {
         if (Instance == null)
@@ -39,7 +43,7 @@ public class AdManager : MonoBehaviour
 
     public void ShowBanner()
     {
-        if (isShowingBanner)
+        if (isShowingBanner || hasRemovedAds)
             return;
 
         if (Advertisement.IsReady("InGameBanner"))
@@ -58,6 +62,8 @@ public class AdManager : MonoBehaviour
 
     public void ShowInGameAd()
     {
+        if (hasRemovedAds)
+            return;
         ShowOptions options = new ShowOptions();;
         if (Advertisement.IsReady("video"))
             Advertisement.Show("video");
@@ -95,6 +101,19 @@ public class AdManager : MonoBehaviour
     {
         yield return new WaitUntil(() => Advertisement.isShowing);
         IsShowingAd = false;
+    }
+
+    public void RemoveAds()
+    {
+        foreach (CanvasGroup canvasGroup in noAdsButtons)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = false;
+        }
+
+        hasRemovedAds = true;
+        HideBanner();
+
     }
 
     

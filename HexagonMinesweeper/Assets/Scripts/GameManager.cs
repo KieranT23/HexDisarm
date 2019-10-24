@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
             CurrentLevel++;
             if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
                 PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
-            StartCoroutine(UIController.Instance.ShowCompleteLevelText());
+            //StartCoroutine(UIController.Instance.ShowCompleteLevelText());
             StartLevel(CurrentLevel, true);
         }
     }

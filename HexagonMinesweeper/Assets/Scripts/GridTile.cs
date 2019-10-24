@@ -368,6 +368,13 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         int amountOfTimes = isEnd ? 14 : 3;
         List<GridTile> animatedTiles = new List<GridTile>();
 
+        if (isEnd)
+        {
+            Confetti.Instance.Play();
+            StartCoroutine(UIController.Instance.ShowCompleteLevelText());
+        }
+            
+
         for (int i = 0; i < amountOfTimes; i++)
         {
             if (!isEnd)
@@ -384,6 +391,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                     if (!neighboursToLoop[i][a][b].RemovedBombs.Contains(this))
                     {
                         neighboursToLoop[i][a][b].RemoveBomb(i, this, isEnd);
+                        StartCoroutine(neighboursToLoop[i][a][b].AnimateDisarmTile());
                         if (isEnd)
                         {
                             LeanTween.color((RectTransform)neighboursToLoop[i][a][b].transform, safeColor, 0.1f);
@@ -397,7 +405,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
             }
             neighboursToLoop.Add(i + 1, newNeighbours);
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         GridGenerator.Instance.DisarmBomb(this);
@@ -456,6 +464,17 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         yield return new WaitForSeconds(0.5f);
         GameManager.Instance.SetGameOver();
+    }
+
+    public IEnumerator AnimateDisarmTile()
+    {
+        IsAnimating = true;
+
+        LeanTween.scale(gameObject, Vector3.one * 1.15f, 0.15f).setEase(LeanTweenType.easeOutSine);
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.scale(gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.25f);
+        IsAnimating = false;
     }
     #endregion
     #endregion

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEditor;
@@ -54,6 +55,8 @@ public class UIController : MonoBehaviour
     [SerializeField] private Button btn_audio;
 
     [SerializeField] private Button btn_vibration;
+
+    [SerializeField] private RectTransform mainCanvas;
 
     #endregion
     #region Private
@@ -114,6 +117,7 @@ public class UIController : MonoBehaviour
         btn_feedback.onClick.AddListener(Feedback);
         btn_settings.onClick.AddListener(() => StartCoroutine(AnimateSettingsOpen()));
         btn_settingsReturn.onClick.AddListener(() => StartCoroutine(AnimateSettingsReturn()));
+        btn_noAds.onClick.AddListener(() => Purchaser.Instance.BuyNoAds());
         settings.gameObject.SetActive(false);
     }
     #endregion
@@ -165,11 +169,47 @@ public class UIController : MonoBehaviour
     public IEnumerator ShowCompleteLevelText()
     {
         completeText.text = completeTexts[Random.Range(0, completeTexts.Length)];
-        LeanTween.scale(completeText.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
-        yield return new WaitForSeconds(3f);
-        LeanTween.alphaCanvas(completeText.GetComponent<CanvasGroup>(), 0f, 0.35f).setEase(LeanTweenType.easeInSine);
-        yield return new WaitForSeconds(0.35f);
-        LeanTween.alphaCanvas(completeText.GetComponent<CanvasGroup>(), 1f, 0f).setEase(LeanTweenType.easeInSine);
+        int random = Random.Range(0, 2);
+        random = 1;
+        switch (random)
+        {
+            case 0:
+                LeanTween.scale(completeText.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+                yield return new WaitForSeconds(0.5f);
+                LeanTween.scale(completeText.gameObject, Vector3.one * 1.25f, 0.5f).setEase(LeanTweenType.easeInOutSine)
+                    .setLoopPingPong(3);
+                yield return new WaitForSeconds(3f);
+                LeanTween.alphaCanvas(completeText.GetComponent<CanvasGroup>(), 0f, 0.35f).setEase(LeanTweenType.easeInSine);
+                yield return new WaitForSeconds(0.35f);
+                LeanTween.alphaCanvas(completeText.GetComponent<CanvasGroup>(), 1f, 0f).setEase(LeanTweenType.easeInSine);
+                break;
+            case 1:
+                RectTransform textRect = (RectTransform) completeText.transform;
+                textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, 100f);
+                LeanTween.value(textRect.gameObject, textRect.anchoredPosition.y, -393f, 0.35f)
+                    .setEase(LeanTweenType.easeOutSine).setOnUpdate(
+                        (float value) =>
+                        {
+                            textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, value);
+                        });
+                LeanTween.scale(completeText.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+                yield return new WaitForSeconds(3f);
+                LeanTween.value(textRect.gameObject, textRect.anchoredPosition.y, 100f, 0.25f)
+                    .setEase(LeanTweenType.easeInSine).setOnUpdate(
+                        (float value) =>
+                        {
+                            textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, value);
+                        });
+                yield return new WaitForSeconds(0.25f);
+                textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, -393f);
+                break;
+            case 2:
+                //RectTransform textRect = (RectTransform)completeText.transform;
+                break;
+        }
+
+
+        
         completeText.transform.localScale = Vector3.zero;
     }
     #endregion

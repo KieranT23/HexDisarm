@@ -59,6 +59,7 @@ public class StartScreen : MonoBehaviour
         btn_feedback.onClick.AddListener(Feedback);
         btn_settings.onClick.AddListener(() => StartCoroutine(AnimateSettingsOpen()));
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateSettingsClose()));
+        btn_noAds.onClick.AddListener(() => Purchaser.Instance.BuyNoAds());
         settingsButtons.SetActive(false);
     }
 
