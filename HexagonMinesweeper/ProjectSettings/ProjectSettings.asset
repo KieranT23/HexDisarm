@@ -155,7 +155,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: uk.KieranTownley.HexDisarm
   buildNumber: {}
-  AndroidBundleVersionCode: 11
+  AndroidBundleVersionCode: 14
   AndroidMinSdkVersion: 16
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -242,7 +242,7 @@ PlayerSettings:
   templateDefaultScene: Assets/Scenes/SampleScene.unity
   AndroidTargetArchitectures: 3
   AndroidSplashScreenScale: 0
-  androidSplashScreen: {fileID: 2800000, guid: 44e06033e650ae14faeec019d45cd4cb, type: 3}
+  androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/hexDisarm.keystore
   AndroidKeyaliasName: hexdisarm
   AndroidBuildApkPerCpuArchitecture: 0
@@ -261,7 +261,7 @@ PlayerSettings:
   - m_BuildTarget: 
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: b6ff86bce9d4824468ee772e6ef6acff, type: 3}
+      m_Icon: {fileID: 2800000, guid: fc309c88c5a0dca40886da2393e49a82, type: 3}
       m_Width: 128
       m_Height: 128
       m_Kind: 0

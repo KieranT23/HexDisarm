@@ -51,6 +51,8 @@ public class AdManager : MonoBehaviour
         if (isShowingBanner || hasRemovedAds)
             return;
 
+        isShowingBanner = true;
+
         Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
 
         if (Advertisement.IsReady("InGameBanner"))
@@ -63,6 +65,7 @@ public class AdManager : MonoBehaviour
     {
         if (!isShowingBanner)
             return;
+        isShowingBanner = false;
 
         Advertisement.Banner.Hide();
     }

@@ -288,6 +288,20 @@ public class GridGenerator : MonoBehaviour
 
         StartCoroutine(AnimateInGrid());
         StartCoroutine(UIController.Instance.AnimateInUI());
+
+        int level = GameManager.Instance.CurrentLevel;
+        if (level == 1)
+            UIController.Instance.ShowTutorialTip(0);
+        else if (level == 2)
+        {
+            UIController.Instance.ShowTutorialTip(1);
+        }
+        else if (level == 5)
+        {
+            SetGridScale(5);
+            UIController.Instance.ShowTutorialTip(2);
+        }
+            
         yield return new WaitForSeconds(1f);
 
 
@@ -319,6 +333,9 @@ public class GridGenerator : MonoBehaviour
         float scale = 0;
         switch (radius)
         {
+            case 2:
+                scale = 0.6f;
+                break;
             case 3:
                 scale = 0.6f;
                 break;

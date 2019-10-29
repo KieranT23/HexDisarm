@@ -7,16 +7,16 @@ public static class Levels
     public static Dictionary<int, List<int>> AllLevels = new Dictionary<int, List<int>>()
     {
         //Level, {gridSize, bombs, bombsToShow, seed}
-        {1, new List<int> {3, 1, 1, 11}},
-        {2, new List<int> {4, 1, 1, 7}},
+        {1, new List<int> {2, 0, 0, 11}},
+        {2, new List<int> {3, 1, 1, 11}},
         {3, new List<int> {4, 1, 1, 680}},
-        {4, new List<int> {5, 2, 2, 308, 769}},
-        {5, new List<int> {5, 2, 2, 831, 324}},
-        {6, new List<int> {5, 2, 1, 77, 739}},
-        {7, new List<int> {5, 2, 1, 310, 21}},
+        {4, new List<int> {4, 1, 1, 308}},
+        {5, new List<int> {4, 1, 1, 3}},
+        {6, new List<int> {5, 2, 2, 77, 739}},
+        {7, new List<int> {5, 2, 2, 310, 21}},
         {8, new List<int> {5, 2, 1, 574, 456}},
         {9, new List<int> {5, 2, 1, 10, 173}},
-        {10, new List<int> {5, 3, 1, 644, 83, 578}},
+        {10, new List<int> {5, 3, 2, 644, 83, 578}},
         ///////////////////////////////////////////////
         {11, new List<int> {6, 2, 1, 642, 754}},
         {12, new List<int> {6, 2, 1, 848, 19}},

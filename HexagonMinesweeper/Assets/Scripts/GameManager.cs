@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour
             if (GridGenerator.Instance.IsGeneratingGrid)
                 return;
 
+            if (CurrentLevel == 1 || CurrentLevel == 2 || CurrentLevel == 5)
+                UIController.Instance.HideCurrentlyActiveTip();
+
             AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int)timeTakenOnLevel, triesOnLevel);
             CurrentLevel++;
             if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
@@ -88,6 +91,9 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(GridGenerator.Instance.AnimateSkip(levelInfo));
         }
+
+        
+
         GridRadius = levelInfo[0];
         BombsToDestroy = levelInfo[1];
         UIController.Instance.UpdateBombsRemaining(BombsToDestroy);
@@ -99,6 +105,17 @@ public class GameManager : MonoBehaviour
     public void QuitLevel()
     {
         AnalyticsManager.Instance.LogLevelQuit(CurrentLevel, (int)timeTakenOnLevel, triesOnLevel);
+    }
+
+    public void FinishTutorialLevel()
+    {
+        UIController.Instance.HideCurrentlyActiveTip();
+        AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int)timeTakenOnLevel, triesOnLevel);
+        CurrentLevel++;
+        if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
+            PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
+        //StartCoroutine(UIController.Instance.ShowCompleteLevelText());
+        StartLevel(CurrentLevel, true);
     }
 
     private IEnumerator WaitForLogReset()

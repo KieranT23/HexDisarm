@@ -58,6 +58,9 @@ public class UIController : MonoBehaviour
 
     [SerializeField] private RectTransform mainCanvas;
 
+    [Header("Tutorial")]
+    [SerializeField] private CanvasGroup[] tutorialSteps;
+
     #endregion
     #region Private
     private CanvasGroup canvasGroup;
@@ -65,7 +68,6 @@ public class UIController : MonoBehaviour
     private string[] completeTexts =
     {
         "Well done!",
-        "Congratulations!",
         "Amazing!",
         "Wow!",
         "OMG!",
@@ -79,6 +81,10 @@ public class UIController : MonoBehaviour
     };
 
     private bool isOnSettings;
+
+    private int currentlyActiveTip = 0;
+
+    private bool isShown;
     #endregion
     #endregion
 
@@ -141,7 +147,12 @@ public class UIController : MonoBehaviour
 
     public void UpdateBombsRemaining(int bombsRemaining)
     {
-        bombsRemainingText.text = string.Format("<size=80>{0}</size>\nBombs", bombsRemaining.ToString());
+        if (bombsRemaining == 1)
+        {
+            bombsRemainingText.text = string.Format("<size=80>{0}</size>\nBomb", bombsRemaining.ToString());
+        }
+        else
+            bombsRemainingText.text = string.Format("<size=80>{0}</size>\nBombs", bombsRemaining.ToString());
     }
 
     public void Show(bool show)
@@ -152,6 +163,9 @@ public class UIController : MonoBehaviour
 
     public IEnumerator AnimateInUI()
     {
+        if (isShown)
+            yield break;
+        isShown = true;
         ResetUI();
         canvasGroup.blocksRaycasts = true;
         LeanTween.value(gameObject, img_currentLevelBackground.anchoredPosition, new Vector2(-50f, -50f), 0.25f)
@@ -182,13 +196,17 @@ public class UIController : MonoBehaviour
 
     public IEnumerator ShowCompleteLevelText()
     {
+        LeanTween.alphaCanvas(completeText.GetComponent<CanvasGroup>(), 1f, 0f).setEase(LeanTweenType.easeInSine);
         HideSkipButton();
         completeText.text = completeTexts[Random.Range(0, completeTexts.Length)];
         int random = Random.Range(0, 3);
         RectTransform textRect = (RectTransform)completeText.transform;
+        completeText.transform.localScale = Vector3.zero;
         switch (random)
         {
             case 0:
+                
+                yield return null;
                 LeanTween.scale(completeText.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
                 yield return new WaitForSeconds(0.5f);
                 LeanTween.scale(completeText.gameObject, Vector3.one * 1.25f, 0.5f).setEase(LeanTweenType.easeInOutSine)
@@ -243,6 +261,20 @@ public class UIController : MonoBehaviour
         
         completeText.transform.localScale = Vector3.zero;
     }
+
+    public void ShowTutorialTip(int step)
+    {
+        currentlyActiveTip = step;
+        tutorialSteps[step].gameObject.SetActive(true);
+        tutorialSteps[step].alpha = 0f;
+        LeanTween.alphaCanvas(tutorialSteps[step], 1f, 1f).setEase(LeanTweenType.easeOutSine);
+    }
+
+    public void HideCurrentlyActiveTip()
+    {
+        LeanTween.alphaCanvas(tutorialSteps[currentlyActiveTip], 0f, 1f).setEase(LeanTweenType.easeInSine);
+        tutorialSteps[currentlyActiveTip].gameObject.SetActive(false);
+    }
     #endregion
     #region Private
 
@@ -258,9 +290,9 @@ public class UIController : MonoBehaviour
         LeanTween.alphaCanvas(bombsRemainingText.GetComponent<CanvasGroup>(), 0f, 0f);
         completeText.transform.localScale = Vector3.zero;
         quitIcon.localScale = Vector3.one;
-        ((RectTransform)btn_settings.transform).anchoredPosition = new Vector2(50f, -175f);
-        ((RectTransform)btn_feedback.transform).anchoredPosition = new Vector2(50f, -300f);
-        ((RectTransform)btn_noAds.transform).anchoredPosition = new Vector2(50f, -425f);
+        ((RectTransform)btn_settings.transform).anchoredPosition = new Vector2(105f, -230f);
+        ((RectTransform)btn_feedback.transform).anchoredPosition = new Vector2(105f, -355f);
+        ((RectTransform)btn_noAds.transform).anchoredPosition = new Vector2(105f, -480f);
 
     }
     private IEnumerator AnimateMenuOpen()
@@ -280,7 +312,7 @@ public class UIController : MonoBehaviour
         LeanTween.scale(quitIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         yield return new WaitForSeconds(0.15f);
         LeanTween.alpha((RectTransform)btn_dim.transform, 0.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
-        LeanTween.value(btn_settings.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_settings.gameObject, -105f, -230f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 settingsRect.anchoredPosition = new Vector2(settingsRect.anchoredPosition.x, value);
@@ -288,14 +320,14 @@ public class UIController : MonoBehaviour
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_feedback.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_feedback.gameObject, -230f, -355f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -500f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -480f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
@@ -308,20 +340,20 @@ public class UIController : MonoBehaviour
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
         LeanTween.alpha((RectTransform)btn_dim.transform, 0f, 0.25f).setEase(LeanTweenType.easeInSine);
-        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -355f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_feedback.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_feedback.gameObject, -355f, -230f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_settings.gameObject, -200f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_settings.gameObject, -230f, -105f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 settingsRect.anchoredPosition = new Vector2(settingsRect.anchoredPosition.x, value);
@@ -361,6 +393,7 @@ public class UIController : MonoBehaviour
         LeanTween.scale(img_bombsRemainingBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
         yield return new WaitForSeconds(0.15f);
         LevelSelection.Instance.Return();;
+        isShown = false;
     }
 
     private IEnumerator AnimateButtonUIQuit()
@@ -370,20 +403,20 @@ public class UIController : MonoBehaviour
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
         LeanTween.alpha((RectTransform)btn_dim.transform, 0.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
 
-        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -300f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -355f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_feedback.gameObject, -300f, -175f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_feedback.gameObject, -355f, -230f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_settings.gameObject, -175f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_settings.gameObject, -230f, -105f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 settingsRect.anchoredPosition = new Vector2(settingsRect.anchoredPosition.x, value);
@@ -432,20 +465,20 @@ public class UIController : MonoBehaviour
         btn_dim.gameObject.SetActive(true);
         LeanTween.alpha((RectTransform)btn_dim.transform, 0.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
 
-        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -300f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -355f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_feedback.gameObject, -300f, -175f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_feedback.gameObject, -355f, -230f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_settings.gameObject, -175f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_settings.gameObject, -230f, -105f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 settingsRect.anchoredPosition = new Vector2(settingsRect.anchoredPosition.x, value);
@@ -509,7 +542,7 @@ public class UIController : MonoBehaviour
         LeanTween.scale(quitIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         yield return new WaitForSeconds(0.15f);
         
-        LeanTween.value(btn_settings.gameObject, -50f, -175f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_settings.gameObject, -105f, -230f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 settingsRect.anchoredPosition = new Vector2(settingsRect.anchoredPosition.x, value);
@@ -517,14 +550,14 @@ public class UIController : MonoBehaviour
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_feedback.gameObject, -175f, -300f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_feedback.gameObject, -230f, -355f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -425f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -480f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);

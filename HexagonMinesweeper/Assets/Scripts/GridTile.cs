@@ -349,6 +349,13 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.FLIP);
         }
 
+        if (Neighbours.Count == 0)
+        {
+            GameManager.Instance.FinishTutorialLevel();
+            return;
+        }
+            
+
         int bombsChecked = 0;
         foreach (GridTile bomb in neighbourBombs)
         {
