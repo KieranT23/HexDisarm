@@ -47,7 +47,6 @@ public class GameManager : MonoBehaviour
                 return;
 
             AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int)timeTakenOnLevel, triesOnLevel);
-            Debug.Log("You win!");
             CurrentLevel++;
             if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
                 PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
@@ -62,7 +61,6 @@ public class GameManager : MonoBehaviour
             AnalyticsManager.Instance.LogLevelFailed(CurrentLevel, (int)timeTakenOnLevel, bombsDisarmed);
         hasLoggedFailed = true;
         triesOnLevel++;
-        Debug.Log("You lose!");
         StartLevel(CurrentLevel);
         if (CurrentLevel >= PlayerInfoManager.Instance.LevelsUnlocked)
             UIController.Instance.ShowSkipButton();

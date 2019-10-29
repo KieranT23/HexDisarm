@@ -21,6 +21,8 @@ public class GridGenerator : MonoBehaviour
     [SerializeField] private RectTransform hexContent;
 
     [SerializeField] private GameObject holderPrefab;
+
+    [SerializeField] private CanvasGroup gridCanvasGroup;
     #endregion
     #region Public
     public bool IsGeneratingGrid { get; private set; }
@@ -55,6 +57,7 @@ public class GridGenerator : MonoBehaviour
     private List<GridTile> instantiatedBombs = new List<GridTile>();
 
     private int timesGenerated = 0;
+    
     #endregion
     #endregion
 
@@ -80,8 +83,14 @@ public class GridGenerator : MonoBehaviour
     #endregion
     #region Public
 
+    public void SetBlocksRaycasts(bool blockRaycasts)
+    {
+        gridCanvasGroup.blocksRaycasts = blockRaycasts;
+    }
+
     public IEnumerator GenerateGrid(List<int> levelInfo, bool levelCompleted = false)
     {
+        gridCanvasGroup.blocksRaycasts = false;
         timesGenerated++;
         PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback++;
         if (levelCompleted)
@@ -103,6 +112,8 @@ public class GridGenerator : MonoBehaviour
         IsGeneratingGrid = true;
         if (hasGeneratedBefore)
         {
+            yield return AnimateQuit();
+
             if (levelInfo[0] != gridRadius)
             {
                 yield return new WaitForSeconds(0.5f);
@@ -300,6 +311,7 @@ public class GridGenerator : MonoBehaviour
         AdManager.Instance.ShowBanner();
         hasGeneratedBefore = true;
         IsGeneratingGrid = false;
+        gridCanvasGroup.blocksRaycasts = true;
     }
 
     private void SetGridScale(int radius)
@@ -335,6 +347,7 @@ public class GridGenerator : MonoBehaviour
 
     private IEnumerator AnimateQuit()
     {
+        gridCanvasGroup.blocksRaycasts = false;
         for (int i = gridTiles.Count - 1; i >= 0; i--)
         {
             if (i == 1 || i == 7 || i == 19 || i == 37 || i == 61 || i == 91 || i == 127)
@@ -345,6 +358,7 @@ public class GridGenerator : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.5f);
+        gridCanvasGroup.blocksRaycasts = true;
     }
 
     public IEnumerator AnimateSkip(List<int> levelInfo)

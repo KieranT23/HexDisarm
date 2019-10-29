@@ -10,7 +10,7 @@ public class Purchaser : MonoBehaviour, IStoreListener
     private static IStoreController m_StoreController;          // The Unity Purchasing system.
     private static IExtensionProvider m_StoreExtensionProvider; // The store-specific Purchasing subsystems.
 
-    private string noAdsProduct = "uk.KieranTownley.HexDisarm.remove_ads";
+    private string noAdsProduct = "remove_ads";
 
     private void Awake()
     {

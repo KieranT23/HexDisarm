@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class StartScreen : MonoBehaviour
 {
     public static StartScreen Instance;
@@ -42,6 +43,8 @@ public class StartScreen : MonoBehaviour
 
     private bool settingsOpen;
 
+    private CanvasGroup canvasGroup;
+
     private void Awake()
     {
         if (Instance == null)
@@ -61,6 +64,7 @@ public class StartScreen : MonoBehaviour
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateSettingsClose()));
         btn_noAds.onClick.AddListener(() => Purchaser.Instance.BuyNoAds());
         settingsButtons.SetActive(false);
+        canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void Init()
@@ -81,7 +85,8 @@ public class StartScreen : MonoBehaviour
 
     private IEnumerator AnimateOut()
     {
-        
+        canvasGroup.blocksRaycasts = false;
+        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
         LeanTween.value(currentLevelBackground.gameObject, 512, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
             .setOnUpdate(
                 (float value) => { currentLevelBackground.sizeDelta = new Vector2(value, value); });
@@ -99,7 +104,7 @@ public class StartScreen : MonoBehaviour
 
     public IEnumerator AnimateIn()
     {
-        btn_vibration.GetComponent<VibrationButton>().Init();
+        btn_vibration.GetComponent<MusicButton>().Init();
         btn_audio.GetComponent<AudioButton>().Init();
         LeanTween.value(currentLevelBackground.gameObject, 4000, 512, 0.35f).setEase(LeanTweenType.easeOutSine)
             .setOnUpdate(
@@ -130,9 +135,9 @@ public class StartScreen : MonoBehaviour
             });
 
         yield return new WaitForSeconds(0.15f);
-        
-        
-        
+        canvasGroup.blocksRaycasts = true;
+
+
     }
 
     private IEnumerator AnimateSettingsOpen()

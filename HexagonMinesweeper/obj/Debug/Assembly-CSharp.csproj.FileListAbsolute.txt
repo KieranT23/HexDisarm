@@ -573,3 +573,13 @@ D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\obj
 D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\obj\Debug\Assembly-CSharp.dll
 D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\obj\Debug\Assembly-CSharp.pdb
 D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\UnityEngine.Purchasing.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Apple.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Editor.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\FacebookStore.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Purchasing.Common.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Security.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Stores.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Tizen.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\UDP.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\winrt.dll
+D:\D Drive Docs\UniFinalYear\Indie\HexDisarmGit\HexDisarm\HexagonMinesweeper\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb

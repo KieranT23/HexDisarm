@@ -15,6 +15,7 @@ public class AudioButton : SettingsButton
     {
         base.ToggleState();
         PlayerInfoManager.Instance.AudioOn = isOn;
+        AudioManager.Instance.ToggleAudio(isOn);
     }
 
     public void Init()

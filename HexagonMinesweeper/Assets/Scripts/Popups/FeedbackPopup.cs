@@ -28,7 +28,7 @@ public class FeedbackPopup : PopupBase
                       "App Version: " + Application.version;
 
         string email = "hexdisarm@gmail.com";
-        string subject = UnityWebRequest.EscapeURL("EPB feedback").Replace("+", "%20");
+        string subject = UnityWebRequest.EscapeURL("Hex Disarm feedback").Replace("+", "%20");
         string body = UnityWebRequest.EscapeURL(Environment.NewLine + Environment.NewLine + bodyFill.Replace("+", "%20"));
         Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}", email, subject, body));
         AnimateOut();

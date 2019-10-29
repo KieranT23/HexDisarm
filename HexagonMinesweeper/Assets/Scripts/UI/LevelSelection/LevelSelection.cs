@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class LevelSelection : MonoBehaviour
 {
     public static LevelSelection Instance;
@@ -45,6 +46,8 @@ public class LevelSelection : MonoBehaviour
 
     [SerializeField] private RectTransform mainCanvas;
 
+    private CanvasGroup canvasGroup;
+
     private void Awake()
     {
         if (Instance == null)
@@ -65,6 +68,7 @@ public class LevelSelection : MonoBehaviour
 
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateLevelSelectToStartScreen()));
 
+        canvasGroup = GetComponent<CanvasGroup>();
         //scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
     }
 
@@ -145,6 +149,7 @@ public class LevelSelection : MonoBehaviour
 
     public void Return()
     {
+        scrollContent.anchoredPosition = new Vector2(0f, 0f);
         createdLevels = 0;
         unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
 
@@ -225,6 +230,7 @@ public class LevelSelection : MonoBehaviour
 
     public IEnumerator AnimateIn()
     {
+        canvasGroup.blocksRaycasts = true;
         float screenHeight = mainCanvas.sizeDelta.y;
         scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight);
         float testObjectPos = testObject.anchoredPosition.y;
@@ -253,6 +259,7 @@ public class LevelSelection : MonoBehaviour
 
     private IEnumerator AnimateLevelSelectToStartScreen()
     {
+        canvasGroup.blocksRaycasts = false;
         float screenHeight = mainCanvas.sizeDelta.y;
         float testObjectPos = -scrollContent.anchoredPosition.y;
         float movementAmount = screenHeight + testObjectPos;

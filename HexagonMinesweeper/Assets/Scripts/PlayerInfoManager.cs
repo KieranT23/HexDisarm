@@ -9,7 +9,7 @@ public class PlayerInfoManager : MonoBehaviour
     private const string KEY_LEVELS_UNLOCKED = "levelsUnlocked";
     private const string KEY_TIMES_GENERATED_FEEDBACK = "timesGeneratedFeedback";
     private const string KEY_AUDIO_ON = "audioOn";
-    private const string KEY_VIBRATION_ON = "vibrationOn";
+    private const string KEY_MUSIC_ON = "musicOn";
     private const string KEY_HAS_REMOVED_ADS = "hasRemovedAds";
 
     public int TimesGridGeneratedSinceFeedback
@@ -30,10 +30,10 @@ public class PlayerInfoManager : MonoBehaviour
         set { PlayerPrefs.SetString(KEY_AUDIO_ON, value.ToString());}
     }
 
-    public bool VibrationOn
+    public bool MusicOn
     {
-        get { return bool.Parse(PlayerPrefs.GetString(KEY_VIBRATION_ON)); }
-        set { PlayerPrefs.SetString(KEY_VIBRATION_ON, value.ToString()); }
+        get { return bool.Parse(PlayerPrefs.GetString(KEY_MUSIC_ON)); }
+        set { PlayerPrefs.SetString(KEY_MUSIC_ON, value.ToString()); }
     }
 
     public bool HasRemovedAds
@@ -57,8 +57,8 @@ public class PlayerInfoManager : MonoBehaviour
             TimesGridGeneratedSinceFeedback = 0;
         if (!PlayerPrefs.HasKey(KEY_AUDIO_ON))
             AudioOn = true;
-        if (!PlayerPrefs.HasKey(KEY_VIBRATION_ON))
-            VibrationOn = true;
+        if (!PlayerPrefs.HasKey(KEY_MUSIC_ON))
+            MusicOn = true;
         if (!PlayerPrefs.HasKey(KEY_HAS_REMOVED_ADS))
             HasRemovedAds = false;
     }

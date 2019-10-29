@@ -320,6 +320,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void Flip()
     {
+        
         if (storedColor == Color.clear)
             storedColor = safeColor;
 
@@ -340,21 +341,38 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             GridGenerator.Instance.SetInteractability(false);
             StartCoroutine(AnimateBombExplosion());
-            
+            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.LOSE);
             return;
         }
+        else
+        {
+            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.FLIP);
+        }
+
+        int bombsChecked = 0;
         foreach (GridTile bomb in neighbourBombs)
         {
-            bomb.CheckForDisarm();
+            if (bombsChecked > 0)
+                StartCoroutine(WaitBeforeCheckingBomb(bomb));
+            else
+                bomb.CheckForDisarm();
+
+            bombsChecked++;
         }
+    }
+
+    private IEnumerator WaitBeforeCheckingBomb(GridTile bomb)
+    {
+        yield return null;
+        bomb.CheckForDisarm();
     }
 
     private IEnumerator AnimateDisarm()
     {
         yield return new WaitUntil(() => !GridGenerator.Instance.IsAnimating);
-        GridGenerator.Instance.IsAnimating = true;
         if (hasAnimatedDisarm)
             yield break;
+        GridGenerator.Instance.IsAnimating = true;
         hasAnimatedDisarm = true;
         yield return new WaitForSeconds(1f);
 
@@ -372,6 +390,8 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             Confetti.Instance.Play();
             StartCoroutine(UIController.Instance.ShowCompleteLevelText());
+            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.WIN);
+            GridGenerator.Instance.SetBlocksRaycasts(false);
         }
             
 
@@ -421,6 +441,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private IEnumerator AnimateBombExplosion()
     {
+        GridGenerator.Instance.SetBlocksRaycasts(false);
         yield return new WaitForSeconds(0.25f);
         LeanTween.scale(gameObject, Vector3.one * 1.25f, 0.85f).setEase(LeanTweenType.easeInQuint);
         LeanTween.color((RectTransform) transform, storedColor, 0.15f).setLoopPingPong(1)

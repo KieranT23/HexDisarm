@@ -28,7 +28,12 @@ public class AdManager : MonoBehaviour
 
     private void Start()
     {
-        Advertisement.Initialize("3329503", true);
+        hasRemovedAds = PlayerInfoManager.Instance.HasRemovedAds;
+        if (hasRemovedAds)
+            RemoveAds();
+        else
+            Advertisement.Initialize("3329503", false);
+        
     }
     private void Update()
     {
@@ -45,6 +50,8 @@ public class AdManager : MonoBehaviour
     {
         if (isShowingBanner || hasRemovedAds)
             return;
+
+        Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
 
         if (Advertisement.IsReady("InGameBanner"))
         {
@@ -99,7 +106,7 @@ public class AdManager : MonoBehaviour
 
     private IEnumerator CheckForAdShowing()
     {
-        yield return new WaitUntil(() => Advertisement.isShowing);
+        yield return new WaitUntil(() => !Advertisement.isShowing);
         IsShowingAd = false;
     }
 
@@ -111,9 +118,9 @@ public class AdManager : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
         }
 
+        PlayerInfoManager.Instance.HasRemovedAds = true;
         hasRemovedAds = true;
         HideBanner();
-
     }
 
     

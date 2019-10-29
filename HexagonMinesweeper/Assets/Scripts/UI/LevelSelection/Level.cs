@@ -66,9 +66,14 @@ public class Level : MonoBehaviour
 
     private IEnumerator AnimateLevelSelect(int level)
     {
+        CanvasGroup levelSelectionCanvasGroup = LevelSelection.Instance.GetComponent<CanvasGroup>();
+        levelSelectionCanvasGroup.blocksRaycasts = false;
+        LevelSelection.Instance.SetBlocksRaycast(false);
+        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
         Color originalColor = background.color;
         LeanTween.alphaCanvas(txt_level.GetComponent<CanvasGroup>(), 0f, 0.15f).setEase(LeanTweenType.easeInSine);
         canvas.overrideSorting = true;
+        canvas.sortingOrder = 1;
         yield return new WaitForSeconds(0.15f);
         RectTransform rect = (RectTransform) transform;
         LeanTween.value(gameObject, rect.sizeDelta.x, 5000, 0.35f).setEase(LeanTweenType.easeInSine).setOnUpdate(
@@ -77,11 +82,7 @@ public class Level : MonoBehaviour
         GameManager.Instance.StartLevel(level);
         LeanTween.color(rect, backgroundColor, 0.15f).setEase(LeanTweenType.easeInOutSine);
         yield return new WaitForSeconds(0.5f);
-        CanvasGroup levelSelectionCanvasGroup = LevelSelection.Instance.GetComponent<CanvasGroup>();
         levelSelectionCanvasGroup.alpha = 0f;
-        levelSelectionCanvasGroup.blocksRaycasts = false;
-        LevelSelection.Instance.SetBlocksRaycast(false);
-
         //Reset
         LeanTween.alphaCanvas(txt_level.GetComponent<CanvasGroup>(), 1f, 0f).setEase(LeanTweenType.easeInSine);
         canvas.overrideSorting = false;
