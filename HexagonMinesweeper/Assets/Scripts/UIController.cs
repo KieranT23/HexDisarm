@@ -61,6 +61,19 @@ public class UIController : MonoBehaviour
     [Header("Tutorial")]
     [SerializeField] private CanvasGroup[] tutorialSteps;
 
+    [Header("End screen")] [SerializeField]
+    private GameObject txt_incredible;
+
+    [SerializeField] private GameObject txt_thanks;
+
+    [SerializeField] private GameObject txt_neverExpected;
+
+    [SerializeField] private GameObject txt_tweetMe;
+
+    [SerializeField] private Button btn_playRandomLevel;
+
+    [SerializeField] private CanvasGroup endGame;
+
     #endregion
     #region Private
     private CanvasGroup canvasGroup;
@@ -128,7 +141,25 @@ public class UIController : MonoBehaviour
         btn_feedback.onClick.AddListener(Feedback);
         btn_settings.onClick.AddListener(() => StartCoroutine(AnimateSettingsOpen()));
         btn_settingsReturn.onClick.AddListener(() => StartCoroutine(AnimateSettingsReturn()));
-        btn_noAds.onClick.AddListener(() => Purchaser.Instance.BuyNoAds());
+        btn_noAds.onClick.AddListener(() =>
+        {
+            PopupManager.Instance.ShowRemoveAds(() => Purchaser.Instance.BuyNoAds());
+        });
+        btn_playRandomLevel.onClick.AddListener(() =>
+        {
+            ResetUI();
+            isShown = false;
+            LeanTween.alphaCanvas(endGame, 0f, 0.15f).setEase(LeanTweenType.easeInSine)
+                .setOnComplete(() =>
+                {
+                    endGame.gameObject.SetActive(false);
+                    txt_tweetMe.SetActive(false);
+                    btn_playRandomLevel.gameObject.SetActive(false);
+                    txt_incredible.SetActive(true);
+                });
+            canvasGroup.blocksRaycasts = false;
+            GameManager.Instance.StartRandomLevel(true);
+        });
         settings.gameObject.SetActive(false);
     }
     #endregion
@@ -293,6 +324,7 @@ public class UIController : MonoBehaviour
         ((RectTransform)btn_settings.transform).anchoredPosition = new Vector2(105f, -230f);
         ((RectTransform)btn_feedback.transform).anchoredPosition = new Vector2(105f, -355f);
         ((RectTransform)btn_noAds.transform).anchoredPosition = new Vector2(105f, -480f);
+        img_currentLevelBackground.localScale = Vector3.one;
 
     }
     private IEnumerator AnimateMenuOpen()
@@ -368,16 +400,21 @@ public class UIController : MonoBehaviour
 
     private void Quit()
     {
+        GameManager.Instance.QuitLevel();
         canvasGroup.blocksRaycasts = false;
+        endGame.gameObject.SetActive(false);
         AdManager.Instance.HideBanner();
-        StartCoroutine(AnimateQuit());
+        if (GameManager.Instance.IsRandomLevel)
+            StartCoroutine(AnimateQuitRandom());
+        else
+            StartCoroutine(AnimateQuit());
         GridGenerator.Instance.QuitGame();
     }
 
     private IEnumerator AnimateQuit()
     {
         HideSkipButton();
-
+        LevelSelection.Instance.gameObject.SetActive(true);
         StartCoroutine(AnimateButtonUIQuit());
         yield return new WaitForSeconds(0.3f);
         LeanTween.alphaCanvas(levelText.GetComponent<CanvasGroup>(), 0f, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -589,6 +626,58 @@ public class UIController : MonoBehaviour
         isOnSettings = false;
         settings.SetActive(false);
         btn_dim.gameObject.SetActive(false);
+    }
+
+    private IEnumerator AnimateQuitRandom()
+    {
+        StartCoroutine(AnimateButtonUIQuit());
+        yield return new WaitForSeconds(0.3f);
+        LeanTween.alphaCanvas(levelText.GetComponent<CanvasGroup>(), 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+        //LeanTween.alpha(img_menuIcon, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(bombsRemainingText.GetComponent<CanvasGroup>(), 0f, 0.15f)
+            .setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(gameObject, img_currentLevelBackground.anchoredPosition, new Vector2(275f, 152f), 0.15f)
+            .setEase(LeanTweenType.easeInSine).setOnUpdate(
+                (Vector2 value) => { img_currentLevelBackground.anchoredPosition = value; });
+        /*LeanTween.alpha((RectTransform)btn_menu.transform, 0f, 0.25f).setEase(LeanTweenType.easeInSine)
+            .setRecursive(false);*/
+        LeanTween.scale(img_bombsRemainingBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.15f);
+        StartCoroutine(StartScreen.Instance.AnimateInRandomLevel());
+        isShown = false;
+    }
+
+    public IEnumerator AnimateFinalLevelFinished()
+    {
+        yield return new WaitForSeconds(2f);
+        yield return GridGenerator.Instance.AnimateCentreBombExplosion();
+        LeanTween.scale(img_currentLevelBackground, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
+        LeanTween.scale(img_bombsRemainingBackground, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.5f);
+        endGame.gameObject.SetActive(true);
+        endGame.alpha = 0f;
+        txt_incredible.SetActive(true);
+        LeanTween.alphaCanvas(endGame, 1f, 0.5f).setEase(LeanTweenType.easeOutSine);
+        yield return new WaitForSeconds(4f);
+        LeanTween.alphaCanvas(endGame, 0f, 0.5f).setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.75f);
+        txt_incredible.SetActive(false);
+        txt_thanks.SetActive(true);
+        LeanTween.alphaCanvas(endGame, 1f, 0.5f).setEase(LeanTweenType.easeOutSine);
+        yield return new WaitForSeconds(5f);
+        LeanTween.alphaCanvas(endGame, 0f, 0.5f).setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.75f);
+        txt_thanks.SetActive(false);
+        txt_neverExpected.SetActive(true);
+        LeanTween.alphaCanvas(endGame, 1f, 0.5f).setEase(LeanTweenType.easeOutSine);
+        yield return new WaitForSeconds(6f);
+        LeanTween.alphaCanvas(endGame, 0f, 0.5f).setEase(LeanTweenType.easeInSine);
+        yield return new WaitForSeconds(0.75f);
+        txt_neverExpected.SetActive(false);
+        txt_tweetMe.SetActive(true);
+        btn_playRandomLevel.gameObject.SetActive(true);
+        LeanTween.alphaCanvas(endGame, 1f, 0.5f).setEase(LeanTweenType.easeOutSine);
     }
     #endregion
     #endregion

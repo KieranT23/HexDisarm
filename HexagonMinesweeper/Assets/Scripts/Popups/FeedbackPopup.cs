@@ -18,11 +18,17 @@ public class FeedbackPopup : PopupBase
         base.Start();
         btn_feedback.onClick.AddListener(Feedback);
         btn_reviewUs.onClick.AddListener(Review);
-        btn_maybeLater.onClick.AddListener(AnimateOut);
+        btn_maybeLater.onClick.AddListener(() =>
+        {
+            AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Closed);
+            AnimateOut();
+        });
     }
 
     private void Feedback()
     {
+        AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Emailed);
+        PlayerInfoManager.Instance.HasProvidedFeedback = true;
         string bodyFill = "Android version: " + SystemInfo.operatingSystem + Environment.NewLine +
                       "Device model: " + SystemInfo.deviceModel + Environment.NewLine +
                       "App Version: " + Application.version;
@@ -36,6 +42,8 @@ public class FeedbackPopup : PopupBase
 
     private void Review()
     {
+        AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Reviewed);
+        PlayerInfoManager.Instance.HasProvidedFeedback = true;
         Application.OpenURL("https://play.google.com/store/apps/details?id=uk.KieranTownley.HexDisarm");
         AnimateOut();
     }

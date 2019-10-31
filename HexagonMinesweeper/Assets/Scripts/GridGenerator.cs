@@ -102,7 +102,7 @@ public class GridGenerator : MonoBehaviour
                 yield return null;
                 yield return new WaitUntil(() => !AdManager.Instance.IsShowingAd);
             }
-            else if (PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback >= 13)
+            else if (PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback >= 13 && !PlayerInfoManager.Instance.HasProvidedFeedback)
             {
                 PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback = 0;
                 PopupManager.Instance.ShowFeedbackPopup();
@@ -118,7 +118,7 @@ public class GridGenerator : MonoBehaviour
             {
                 yield return new WaitForSeconds(0.5f);
                 DestroyGrid();
-                yield return new WaitForSeconds(2f);
+                yield return new WaitForSeconds(0.5f);
             }
             else
             {
@@ -129,7 +129,8 @@ public class GridGenerator : MonoBehaviour
 
                 gridRadius = LevelInfo[0];
                 numberOfBombs = LevelInfo[1];
-                numberOfBombsToShow = LevelInfo[2];
+                if (levelInfo.Count > 2)
+                    numberOfBombsToShow = LevelInfo[2];
                 yield break;
             }
 
@@ -139,7 +140,12 @@ public class GridGenerator : MonoBehaviour
 
         gridRadius = LevelInfo[0];
         numberOfBombs = LevelInfo[1];
-        numberOfBombsToShow = LevelInfo[2];
+        if (levelInfo.Count > 2)
+            numberOfBombsToShow = LevelInfo[2];
+        else
+        {
+            numberOfBombsToShow = 0;
+        }
 
         GridTile centreTile = GameObject.Instantiate(gridTilePrefab, hexContent);
         Vector3 centrePos = ((RectTransform)centreTile.transform).anchoredPosition;
@@ -273,10 +279,20 @@ public class GridGenerator : MonoBehaviour
         List<int> bombs = new List<int>();
         for (int i = 0; i < numberOfBombs; i++)
         {
-            Random.InitState(LevelInfo[3 + i]);
+            int seed = 0;
+            if (LevelInfo.Count > 2)
+                seed = LevelInfo[3 + i];
+           
             int bomb = 0;
             do
+            {
+                if (GameManager.Instance.IsRandomLevel)
+                    Random.InitState(System.Environment.TickCount);
+                else
+                    Random.InitState(seed);
                 bomb = Random.Range(0, gridTiles.Count);
+                seed += 100;
+            }
             while (bombs.Contains(bomb));
             bombs.Add(bomb);
         }
@@ -289,18 +305,22 @@ public class GridGenerator : MonoBehaviour
         StartCoroutine(AnimateInGrid());
         StartCoroutine(UIController.Instance.AnimateInUI());
 
-        int level = GameManager.Instance.CurrentLevel;
-        if (level == 1)
-            UIController.Instance.ShowTutorialTip(0);
-        else if (level == 2)
+        if (LevelInfo.Count > 2)
         {
-            UIController.Instance.ShowTutorialTip(1);
+            int level = GameManager.Instance.CurrentLevel;
+            if (level == 1)
+                UIController.Instance.ShowTutorialTip(0);
+            else if (level == 2)
+            {
+                UIController.Instance.ShowTutorialTip(1);
+            }
+            else if (level == 5)
+            {
+                SetGridScale(5);
+                UIController.Instance.ShowTutorialTip(2);
+            }
         }
-        else if (level == 5)
-        {
-            SetGridScale(5);
-            UIController.Instance.ShowTutorialTip(2);
-        }
+        
             
         yield return new WaitForSeconds(1f);
 
@@ -382,6 +402,11 @@ public class GridGenerator : MonoBehaviour
     {
         yield return AnimateQuit();
         StartCoroutine(GenerateGrid(levelInfo));
+    }
+
+    public IEnumerator AnimateCentreBombExplosion()
+    {
+        yield return gridTiles[0].AnimateBombExplosion(false);
     }
     #endregion
     #endregion 

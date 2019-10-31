@@ -88,6 +88,7 @@ public class Level : MonoBehaviour
         canvas.overrideSorting = false;
         rect.sizeDelta = new Vector2(256, 256);
         background.color = originalColor;
+        LevelSelection.Instance.gameObject.SetActive(false);
     }
 
     public IEnumerator Return()

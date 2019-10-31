@@ -72,7 +72,7 @@ public class AdManager : MonoBehaviour
 
     public void ShowInGameAd()
     {
-        if (hasRemovedAds)
+        if (hasRemovedAds || IsShowingAd)
             return;
         ShowOptions options = new ShowOptions();;
         if (Advertisement.IsReady("video"))

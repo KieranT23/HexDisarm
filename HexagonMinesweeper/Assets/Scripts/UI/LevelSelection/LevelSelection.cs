@@ -185,6 +185,7 @@ public class LevelSelection : MonoBehaviour
         }
 
         scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
+        gameObject.SetActive(true);
         StartCoroutine(lastPlayedLevel.Return());
     }
 

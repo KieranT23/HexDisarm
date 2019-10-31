@@ -21,6 +21,10 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     [SerializeField] private Color dangerousColor;
 
     [SerializeField] private Color alertColor;
+
+    [SerializeField] private Color multiAlertColor;
+
+    [SerializeField] private Color threeBombColor;
     #endregion
     #region Public
     public List<GridTile> Neighbours;
@@ -62,7 +66,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private int colorIndex = 3;
 
-    private Color storedColor = Color.clear;
+    public Color storedColor = Color.clear;
 
     private EventSystem currentEventSystem;
 
@@ -72,6 +76,8 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private bool hasAnimatedDisarm;
 
     private Color startColour;
+
+    private bool wasFormerBomb;
     #endregion
     #endregion
 
@@ -166,6 +172,8 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void SetColor(int colorToSet, GridTile bomb)
     {
+        if (wasFormerBomb)
+            Debug.Log("Testing");
         if (IsBomb || colorIndex < colorToSet)
             return;
 
@@ -173,7 +181,12 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             case 0:
                 storedColor = alertColor;
-                neighbourBombs.Add(bomb);
+                if (!neighbourBombs.Contains(bomb))
+                    neighbourBombs.Add(bomb);
+                if (neighbourBombs.Count >= 3)
+                    storedColor = threeBombColor;
+                else if (neighbourBombs.Count == 2)
+                    storedColor = multiAlertColor;
                 break;
             case 1:
                 storedColor = dangerousColor;
@@ -192,7 +205,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             background.color = storedColor;
     }
 
-    public void CheckForDisarm()
+    public void CheckForDisarm(bool hasTriggeredFromBomb = false)
     {
         IsCheckingDisarm = true;
         bool bombActive = false;
@@ -202,25 +215,35 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             {
                 if (!tile.IsCheckingDisarm)
                 {
-                    tile.CheckForDisarm();
+                    tile.CheckForDisarm(true);
                     if (!tile.IsSafe)
                         bombActive = true;
                 }
-
                 continue;
             }
             else if (!tile.HasFlipped)
             {
                 bombActive = true;
+                IsSafe = false;
                 break;
             }
         }
 
-
-        if (!bombActive)
+        if (!bombActive && hasTriggeredFromBomb)
         {
             IsSafe = true;
+            StartCoroutine(CheckDisarmAgain());
+        }
+
+
+        if (!bombActive && !hasTriggeredFromBomb)
+        {
+            wasFormerBomb = true;
+            IsSafe = true;
             IsBomb = false;
+            HasFlipped = true;
+            button.interactable = false;
+            background.raycastTarget = false;
             if (colours.Count != 0)
             {
                 int lowestColour = 3;
@@ -255,6 +278,12 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     }
 
+    private IEnumerator CheckDisarmAgain()
+    {
+        yield return new WaitForSeconds(0.5f);
+        CheckForDisarm();
+    }
+
     public void RemoveBomb(int layer, GridTile bomb, bool isEnd)
     {
         if (RemovedBombs.Contains(bomb))
@@ -266,7 +295,8 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (neighbourBombs.Contains(bomb))
             neighbourBombs.Remove(bomb);
 
-        storedColor = safeColor;
+        if ((IsBomb && IsSafe) || !IsBomb)
+            storedColor = safeColor;
 
         colorIndex = 3;
         if (HasFlipped)
@@ -298,6 +328,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         hasAnimatedDisarm = false;
         transform.localScale = Vector3.one;
         GetComponent<CanvasGroup>().alpha = 0f;
+        wasFormerBomb = false;
     }
 
     public void AddNeighboursAtPositions(List<Vector3> positions)
@@ -446,7 +477,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     
 
-    private IEnumerator AnimateBombExplosion()
+    public IEnumerator AnimateBombExplosion(bool reset = true)
     {
         GridGenerator.Instance.SetBlocksRaycasts(false);
         yield return new WaitForSeconds(0.25f);
@@ -491,7 +522,8 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
 
         yield return new WaitForSeconds(0.5f);
-        GameManager.Instance.SetGameOver();
+        if (reset)
+            GameManager.Instance.SetGameOver();
     }
 
     public IEnumerator AnimateDisarmTile()

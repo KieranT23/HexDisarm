@@ -1,12 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PopupManager : MonoBehaviour
 {
     public static PopupManager Instance;
 
     [SerializeField] private FeedbackPopup feedbackPopup;
+
+    [SerializeField] private RandomLevelsPopup randomPopup;
+
+    [SerializeField] private RemoveAdsPopup removeAdsPopup;
 
     [SerializeField] private CanvasGroup img_dim;
 
@@ -25,6 +30,18 @@ public class PopupManager : MonoBehaviour
     {
         feedbackPopup.gameObject.SetActive(true);
         feedbackPopup.Init();
+    }
+
+    public void ShowRandomPopup(UnityAction callback)
+    {
+        randomPopup.gameObject.SetActive(true);
+        randomPopup.Init(callback);
+    }
+
+    public void ShowRemoveAds(UnityAction callback)
+    {
+        removeAdsPopup.gameObject.SetActive(true);
+        removeAdsPopup.Init(callback);
     }
 
     // Start is called before the first frame update

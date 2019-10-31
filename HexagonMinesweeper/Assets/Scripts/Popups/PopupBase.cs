@@ -9,6 +9,7 @@ public class PopupBase : MonoBehaviour
 {
     [SerializeField] private CanvasGroup img_dim;
 
+    protected UnityAction successCallback;
     //private void 
 
     protected virtual void Start()
@@ -17,8 +18,9 @@ public class PopupBase : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Init()
+    public void Init(UnityAction callback = null)
     {
+        successCallback = callback;
         AnimateIn();
     }
 

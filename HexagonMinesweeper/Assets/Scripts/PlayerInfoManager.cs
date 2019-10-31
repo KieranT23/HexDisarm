@@ -11,6 +11,9 @@ public class PlayerInfoManager : MonoBehaviour
     private const string KEY_AUDIO_ON = "audioOn";
     private const string KEY_MUSIC_ON = "musicOn";
     private const string KEY_HAS_REMOVED_ADS = "hasRemovedAds";
+    private const string KEY_HAS_PROVIDED_FEEDBACK = "hasProvidedFeedback";
+    private const string KEY_RANDOM_LEVELS_COMPLETED = "randomLevelsCompleted";
+    private const string KEY_HAS_SHOWN_RANDOM_POPUP = "hasShownRandomPopup";
 
     public int TimesGridGeneratedSinceFeedback
     {
@@ -42,6 +45,25 @@ public class PlayerInfoManager : MonoBehaviour
         set { PlayerPrefs.SetString(KEY_HAS_REMOVED_ADS, value.ToString()); }
     }
 
+    public bool HasProvidedFeedback
+    {
+        get { return bool.Parse(PlayerPrefs.GetString(KEY_HAS_PROVIDED_FEEDBACK)); }
+        set { PlayerPrefs.SetString(KEY_HAS_PROVIDED_FEEDBACK, value.ToString()); }
+    }
+
+    public int AmountOfCompletedRandomLevels
+    {
+        get { return (PlayerPrefs.GetInt(KEY_RANDOM_LEVELS_COMPLETED)); }
+        set { PlayerPrefs.SetInt(KEY_RANDOM_LEVELS_COMPLETED, value); }
+    }
+
+    public bool HasShownRandomPopup
+    {
+        get { return bool.Parse(PlayerPrefs.GetString(KEY_HAS_SHOWN_RANDOM_POPUP)); }
+        set { PlayerPrefs.SetString(KEY_HAS_SHOWN_RANDOM_POPUP, value.ToString()); }
+    }
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -61,5 +83,11 @@ public class PlayerInfoManager : MonoBehaviour
             MusicOn = true;
         if (!PlayerPrefs.HasKey(KEY_HAS_REMOVED_ADS))
             HasRemovedAds = false;
+        if (!PlayerPrefs.HasKey(KEY_HAS_PROVIDED_FEEDBACK))
+            HasProvidedFeedback = false;
+        if (!PlayerPrefs.HasKey(KEY_RANDOM_LEVELS_COMPLETED))
+            AmountOfCompletedRandomLevels = 0;
+        if (!PlayerPrefs.HasKey(KEY_HAS_SHOWN_RANDOM_POPUP))
+            HasShownRandomPopup = false;
     }
 }

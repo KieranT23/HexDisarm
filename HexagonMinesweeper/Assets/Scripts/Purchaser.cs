@@ -12,6 +12,8 @@ public class Purchaser : MonoBehaviour, IStoreListener
 
     private string noAdsProduct = "remove_ads";
 
+    private bool isRestoringAds;
+
     private void Awake()
     {
         if (Instance == null)
@@ -88,6 +90,8 @@ public class Purchaser : MonoBehaviour, IStoreListener
         // A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing 
         // this reason with the user to guide their troubleshooting actions.
         Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
+        if (failureReason == PurchaseFailureReason.DuplicateTransaction)
+            AdManager.Instance.RemoveAds();
     }
 
     /// <summary>
@@ -110,7 +114,7 @@ public class Purchaser : MonoBehaviour, IStoreListener
         //Consumable = can be purchased multiple times
         //Non-consumable = can only be purchased once
         //Subscription = recurring purchase
-        builder.AddProduct(noAdsProduct, ProductType.Consumable);
+        builder.AddProduct(noAdsProduct, ProductType.NonConsumable);
 
         // And finish adding the subscription product. Notice this uses store-specific IDs, illustrating
         // if the Product ID was configured differently between Apple and Google stores. Also note that
@@ -213,6 +217,6 @@ public class Purchaser : MonoBehaviour, IStoreListener
             // ... report the fact Purchasing has not succeeded initializing yet. Consider waiting longer or 
             // retrying initiailization.
             Debug.LogError("BuyProductID FAIL. Not initialized.");
-        }
+        }  
     }
 }

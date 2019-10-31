@@ -41,6 +41,18 @@ public class StartScreen : MonoBehaviour
 
     [SerializeField] private Button btn_return;
 
+    [SerializeField] private RectTransform randomLevelBackground;
+
+    [SerializeField] private CanvasGroup randomText;
+
+    [SerializeField] private CanvasGroup randomDice;
+
+    [SerializeField] private Button btn_playRandomLevel;
+
+    [SerializeField] private Color colorToAnimateRandomBackgroundTo;
+
+    [SerializeField] private Color colorToAnimateRandomBackgroundFrom;
+
     private bool settingsOpen;
 
     private CanvasGroup canvasGroup;
@@ -60,26 +72,48 @@ public class StartScreen : MonoBehaviour
         Init();
         btn_continue.onClick.AddListener(Continue);
         btn_feedback.onClick.AddListener(Feedback);
-        btn_settings.onClick.AddListener(() => StartCoroutine(AnimateSettingsOpen()));
+        btn_settings.onClick.AddListener(() =>
+        {
+            AnalyticsManager.Instance.LogFirstAction(AnalyticsManager.FirstAction.Settings);
+            StartCoroutine(AnimateSettingsOpen());
+        });
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateSettingsClose()));
-        btn_noAds.onClick.AddListener(() => Purchaser.Instance.BuyNoAds());
+        btn_noAds.onClick.AddListener(() =>
+        {
+            AnalyticsManager.Instance.LogFirstAction(AnalyticsManager.FirstAction.RemoveAds);
+            PopupManager.Instance.ShowRemoveAds(() => Purchaser.Instance.BuyNoAds());
+        });
+        btn_playRandomLevel.onClick.AddListener(() =>
+        {
+            AnalyticsManager.Instance.LogFirstAction(AnalyticsManager.FirstAction.Random);
+            if (!PlayerInfoManager.Instance.HasShownRandomPopup)
+            {
+                PlayerInfoManager.Instance.HasShownRandomPopup = true;
+                PopupManager.Instance.ShowRandomPopup(() => StartCoroutine(AnimateOutRandomLevel()));
+            }
+                
+            else
+                StartCoroutine(AnimateOutRandomLevel());
+        });
         settingsButtons.SetActive(false);
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void Init()
     {
-        txt_currentLevel.text = string.Format("Level\n<size=200>{0}</size>", PlayerInfoManager.Instance.LevelsUnlocked);
+        txt_currentLevel.text = string.Format("Level\n<size=120>{0}</size>", PlayerInfoManager.Instance.LevelsUnlocked);
     }
 
     private void Continue()
     {
+        AnalyticsManager.Instance.LogFirstAction(AnalyticsManager.FirstAction.Continue);
         StartCoroutine(AnimateOut());
         //gameObject.SetActive(false);
     }
 
     private void Feedback()
     {
+        AnalyticsManager.Instance.LogFirstAction(AnalyticsManager.FirstAction.Feedback);
         PopupManager.Instance.ShowFeedbackPopup();
     }
 
@@ -87,12 +121,14 @@ public class StartScreen : MonoBehaviour
     {
         canvasGroup.blocksRaycasts = false;
         AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
-        LeanTween.value(currentLevelBackground.gameObject, 512, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
+        LeanTween.value(currentLevelBackground.gameObject, 386, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
             .setOnUpdate(
                 (float value) => { currentLevelBackground.sizeDelta = new Vector2(value, value); });
         LeanTween.alphaCanvas(txt_currentLevel.GetComponent<CanvasGroup>(), 0f, 0.15f)
             .setEase(LeanTweenType.easeInSine);
         LeanTween.alphaCanvas(txt_continue, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(randomText, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.scale(randomLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
 
         if (settingsOpen)
             yield return AnimateSettingsContinue();
@@ -106,13 +142,15 @@ public class StartScreen : MonoBehaviour
     {
         btn_vibration.GetComponent<MusicButton>().Init();
         btn_audio.GetComponent<AudioButton>().Init();
-        LeanTween.value(currentLevelBackground.gameObject, 4000, 512, 0.35f).setEase(LeanTweenType.easeOutSine)
+        LeanTween.value(currentLevelBackground.gameObject, 4000, 386, 0.35f).setEase(LeanTweenType.easeOutSine)
             .setOnUpdate(
                 (float value) => { currentLevelBackground.sizeDelta = new Vector2(value, value); });
         LeanTween.alphaCanvas(txt_currentLevel.GetComponent<CanvasGroup>(), 1f, 0.15f)
             .setEase(LeanTweenType.easeOutSine);
         LeanTween.alphaCanvas(txt_continue, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
-        
+        LeanTween.alphaCanvas(randomText, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
+        LeanTween.scale(randomLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
 
@@ -264,5 +302,82 @@ public class StartScreen : MonoBehaviour
             });
         LeanTween.scale(returnIcon, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
         yield return new WaitForSeconds(0.2f);
+    }
+
+    private IEnumerator AnimateOutRandomLevel()
+    {
+        canvasGroup.blocksRaycasts = false;
+        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
+
+        LeanTween.value(randomLevelBackground.gameObject, 312, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
+            .setOnUpdate(
+                (float value) => { randomLevelBackground.sizeDelta = new Vector2(value, value); });
+        LeanTween.scale(currentLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(randomText.GetComponent<CanvasGroup>(), 0f, 0.15f)
+            .setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(randomDice, 0, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(txt_continue, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+
+        if (settingsOpen)
+            yield return AnimateSettingsContinue();
+        else
+            yield return AnimateMenuContinue();
+
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.color(randomLevelBackground, colorToAnimateRandomBackgroundTo, 0.25f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+        GameManager.Instance.StartRandomLevel(false);
+        LevelSelection.Instance.gameObject.SetActive(false);
+        //StartCoroutine(LevelSelection.Instance.AnimateIn());
+        gameObject.SetActive(false);
+    }
+
+    public IEnumerator AnimateInRandomLevel()
+    {
+        gameObject.SetActive(true);
+        LeanTween.color(randomLevelBackground, colorToAnimateRandomBackgroundFrom, 0.25f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+        yield return new WaitForSeconds(0.25f);
+        LeanTween.value(randomLevelBackground.gameObject, 4000, 312, 0.35f).setEase(LeanTweenType.easeInSine)
+            .setOnUpdate(
+                (float value) => { randomLevelBackground.sizeDelta = new Vector2(value, value); });
+        yield return new WaitForSeconds(0.2f);
+        LeanTween.scale(currentLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.alphaCanvas(randomText.GetComponent<CanvasGroup>(), 1f, 0.15f)
+            .setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(randomDice, 1, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(txt_continue, 1f, 0.15f).setEase(LeanTweenType.easeInSine);
+        yield return AnimateMenuRandom();
+
+        yield return new WaitForSeconds(0.15f);
+        
+        LevelSelection.Instance.gameObject.SetActive(true);
+        
+        canvasGroup.blocksRaycasts = true;
+    }
+
+    private IEnumerator AnimateMenuRandom()
+    {
+        LeanTween.color((RectTransform)btn_settings.transform, colorToAnimateSettingsFrom, 0.15f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+        LeanTween.scale(settingsIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        yield return new WaitForSeconds(0.15f);
+        RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
+        RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
+        LeanTween.value(btn_feedback.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+
+        LeanTween.value(btn_noAds.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+
+        yield return new WaitForSeconds(0.15f);
     }
 }
