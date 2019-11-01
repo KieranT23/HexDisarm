@@ -48,6 +48,7 @@ public class Purchaser : MonoBehaviour, IStoreListener
         m_StoreExtensionProvider = extensions;
 
         //Restore all purchases
+        RestorePurchases();
     }
 
     /// <summary>
@@ -139,7 +140,7 @@ public class Purchaser : MonoBehaviour, IStoreListener
     /// Restore purchases previously made by this customer. Some platforms automatically restore purchases, like Google. 
     /// Apple currently requires explicit purchase restoration for IAP, conditionally displaying a password prompt.
     /// </summary>
-    public void RestorePurchases()
+    public void RestorePurchases(bool showPopup = false)
     {
         // If Purchasing has not yet been set up ...
         if (!IsInitialized())
@@ -160,7 +161,13 @@ public class Purchaser : MonoBehaviour, IStoreListener
             IAppleExtensions apple = m_StoreExtensionProvider.GetExtension<IAppleExtensions>();
             // Begin the asynchronous process of restoring purchases. Expect a confirmation response in 
             // the Action<bool> below, and ProcessPurchase if there are previously purchased products to restore.
-            apple.RestoreTransactions((result) => { });
+            apple.RestoreTransactions((result) =>
+            {
+                if (result && showPopup)
+                {
+                    PopupManager.Instance.ShowRestorePurchases();
+                }
+            });
         }
         // Otherwise ...
         else

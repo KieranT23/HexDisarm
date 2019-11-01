@@ -13,6 +13,10 @@ public class PopupManager : MonoBehaviour
 
     [SerializeField] private RemoveAdsPopup removeAdsPopup;
 
+    [SerializeField] private RestorePurchasesPopup restorePurchasesPopup;
+
+    [SerializeField] private DataCollectionPopup dataCollectionPopup;
+
     [SerializeField] private CanvasGroup img_dim;
 
     private void Awake()
@@ -42,6 +46,18 @@ public class PopupManager : MonoBehaviour
     {
         removeAdsPopup.gameObject.SetActive(true);
         removeAdsPopup.Init(callback);
+    }
+
+    public void ShowRestorePurchases()
+    {
+        restorePurchasesPopup.gameObject.SetActive(true);
+        restorePurchasesPopup.Init();
+    }
+
+    public void ShowDataCollectionPopup()
+    {
+        dataCollectionPopup.gameObject.SetActive(true);
+        dataCollectionPopup.Init();
     }
 
     // Start is called before the first frame update

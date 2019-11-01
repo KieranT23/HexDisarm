@@ -69,12 +69,14 @@
     <Compile Include="Assets\Scripts\GridTile.cs" />
     <Compile Include="Assets\Scripts\Levels.cs" />
     <Compile Include="Assets\Scripts\PlayerInfoManager.cs" />
+    <Compile Include="Assets\Scripts\Popups\DataCollectionPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\FeedbackPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\PausePopup.cs" />
     <Compile Include="Assets\Scripts\Popups\PopupBase.cs" />
     <Compile Include="Assets\Scripts\Popups\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Popups\RandomLevelsPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\RemoveAdsPopup.cs" />
+    <Compile Include="Assets\Scripts\Popups\RestorePurchasesPopup.cs" />
     <Compile Include="Assets\Scripts\Purchaser.cs" />
     <Compile Include="Assets\Scripts\UI\AudioButton.cs" />
     <Compile Include="Assets\Scripts\UI\LevelSelection\Level.cs" />

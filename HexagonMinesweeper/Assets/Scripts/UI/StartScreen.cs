@@ -53,6 +53,10 @@ public class StartScreen : MonoBehaviour
 
     [SerializeField] private Color colorToAnimateRandomBackgroundFrom;
 
+    [SerializeField] private Button btn_restore;
+
+    [SerializeField] private Button btn_dataCollection;
+
     private bool settingsOpen;
 
     private CanvasGroup canvasGroup;
@@ -95,6 +99,8 @@ public class StartScreen : MonoBehaviour
             else
                 StartCoroutine(AnimateOutRandomLevel());
         });
+        btn_restore.onClick.AddListener(() => Purchaser.Instance.RestorePurchases(true));
+        btn_dataCollection.onClick.AddListener(() => PopupManager.Instance.ShowDataCollectionPopup());
         settingsButtons.SetActive(false);
         canvasGroup = GetComponent<CanvasGroup>();
     }
@@ -184,10 +190,18 @@ public class StartScreen : MonoBehaviour
         //RectTransform settingsRect = (RectTransform)btn_settings.transform;
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
+        RectTransform restoreRect = (RectTransform) btn_restore.transform;
 
-        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, noAdsRect.anchoredPosition.y, -350f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_restore.gameObject, -350f, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -195,6 +209,7 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         //LeanTween.scale(quitIcon, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -203,18 +218,29 @@ public class StartScreen : MonoBehaviour
         menuButtons.SetActive(false);
         returnIcon.localScale = Vector3.zero;
         LeanTween.scale(returnIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
         RectTransform audioRect = (RectTransform)btn_audio.transform;
         RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
         audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, -50f);
         vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, -50f);
-        LeanTween.value(btn_audio.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, -50f);
+        LeanTween.value(btn_dataCollection.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+            (float value) =>
+            {
+                dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
+                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.2f);
+
+        LeanTween.value(btn_audio.gameObject, -200, -350, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_vibration.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_vibration.gameObject, -350, -500, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
@@ -224,17 +250,26 @@ public class StartScreen : MonoBehaviour
     private IEnumerator AnimateSettingsClose()
     {
         settingsOpen = false;
+        RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
         RectTransform audioRect = (RectTransform)btn_audio.transform;
         RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
-        LeanTween.value(btn_vibration.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_vibration.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_audio.gameObject, -200f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_audio.gameObject, -350, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_dataCollection.gameObject, -200, -50, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
@@ -243,15 +278,24 @@ public class StartScreen : MonoBehaviour
         settingsButtons.SetActive(false);
         menuButtons.SetActive(true);
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
+        RectTransform restoreRect = (RectTransform) btn_restore.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
         LeanTween.value(btn_feedback.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_noAds.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_restore.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+            (float value) =>
+            {
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.2f);
+        LeanTween.value(btn_noAds.gameObject, -350f, -500f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
@@ -263,10 +307,18 @@ public class StartScreen : MonoBehaviour
     private IEnumerator AnimateMenuContinue()
     {
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
+        RectTransform restoreRect = (RectTransform) btn_restore.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
-        LeanTween.value(btn_noAds.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_restore.gameObject, -350, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
 
@@ -275,6 +327,7 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
         LeanTween.scale(settingsIcon, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -288,15 +341,24 @@ public class StartScreen : MonoBehaviour
         settingsOpen = false;
         RectTransform audioRect = (RectTransform)btn_audio.transform;
         RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
-        LeanTween.value(btn_vibration.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
+        LeanTween.value(btn_vibration.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_audio.gameObject, -200f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_audio.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_dataCollection.gameObject, -200f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
@@ -363,16 +425,25 @@ public class StartScreen : MonoBehaviour
         LeanTween.scale(settingsIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         yield return new WaitForSeconds(0.15f);
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
+        RectTransform restoreRect = (RectTransform) btn_restore.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
         LeanTween.value(btn_feedback.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(restoreRect.gameObject, -200, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                restoreRect.anchoredPosition = new Vector2(restoreRect.anchoredPosition.x, value);
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
 
-        LeanTween.value(btn_noAds.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_noAds.gameObject, -350, -500, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);

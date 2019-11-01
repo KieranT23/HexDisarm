@@ -43,6 +43,8 @@ public class AnalyticsManager : MonoBehaviour
     private bool hasLoggedRandomLevelCompleted;
     private bool hasLoggedRandomLevelQuit;
 
+    private bool disableAnalytics;
+
     private void Awake()
     {
         if (Instance == null)
@@ -51,9 +53,19 @@ public class AnalyticsManager : MonoBehaviour
             Destroy(this);
     }
 
+    private void Start()
+    {
+        SetDisableAnalytics(PlayerInfoManager.Instance.HasDisabledAnalytics);
+    }
+
+    public void SetDisableAnalytics(bool value)
+    {
+        disableAnalytics = value;
+    }
+
     public void LogLevelCompleted(int level, int timeTaken, int tries)
     {
-        if (hasLoggedCompleted)
+        if (hasLoggedCompleted || disableAnalytics)
             return;
         hasLoggedCompleted = true;
         Analytics.CustomEvent("levelCompleted", new Dictionary<string, object>
@@ -67,7 +79,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogLevelSkippedLevelSelect(int level)
     {
-        if (hasLoggedLevelSelect)
+        if (hasLoggedLevelSelect || disableAnalytics)
             return;
         hasLoggedLevelSelect = true;
         Analytics.CustomEvent("levelSkippedLevelSelect", new Dictionary<string, object>
@@ -79,7 +91,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogLevelSkipped(int level, int timeTaken, int tries)
     {
-        if (hasLoggedSkipped)
+        if (hasLoggedSkipped || disableAnalytics)
             return;
         hasLoggedSkipped = true;
         Analytics.CustomEvent("levelSkipped", new Dictionary<string, object>
@@ -93,7 +105,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogLevelFailed(int level, int timeTaken, int bombsDisarmed)
     {
-        if (hasLoggedFailed)
+        if (hasLoggedFailed || disableAnalytics)
             return;
         hasLoggedFailed = true;
         Analytics.CustomEvent("levelFailed", new Dictionary<string, object>
@@ -107,7 +119,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogLevelQuit(int level, int timeTaken, int tries)
     {
-        if (hasLoggedQuit)
+        if (hasLoggedQuit || disableAnalytics)
             return;
         hasLoggedQuit = true;
         Analytics.CustomEvent("levelQuit", new Dictionary<string, object>
@@ -121,7 +133,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogFirstAction(FirstAction firstAction)
     {
-        if (hasLoggedFirstAction)
+        if (hasLoggedFirstAction || disableAnalytics)
             return;
         hasLoggedFirstAction = true;
         Analytics.CustomEvent("firstAction", new Dictionary<string, object>
@@ -132,7 +144,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogFeedbackAction(FeedbackAction action)
     {
-        if (hasLoggedFeedback)
+        if (hasLoggedFeedback || disableAnalytics)
             return;
         hasLoggedFeedback = true;
         Analytics.CustomEvent("feedbackPopupAction", new Dictionary<string, object>
@@ -144,7 +156,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogRandomPopupAction(RandomPopupAction action)
     {
-        if (hasLoggedRandomPopup)
+        if (hasLoggedRandomPopup || disableAnalytics)
             return;
         hasLoggedRandomPopup = true;
         Analytics.CustomEvent("randomPopupAction", new Dictionary<string, object>
@@ -156,7 +168,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogRandomLevelCompleted(int level, int timeTaken)
     {
-        if (hasLoggedRandomLevelCompleted)
+        if (hasLoggedRandomLevelCompleted || disableAnalytics)
             return;
         hasLoggedRandomLevelCompleted = true;
         Analytics.CustomEvent("randomLevelCompleted", new Dictionary<string, object>
@@ -169,7 +181,7 @@ public class AnalyticsManager : MonoBehaviour
 
     public void LogRandomLevelQuit(int level, int timeTaken, int amountOfLevelsCompleted)
     {
-        if (hasLoggedRandomLevelQuit)
+        if (hasLoggedRandomLevelQuit || disableAnalytics)
             return;
         hasLoggedRandomLevelQuit = true;
         Analytics.CustomEvent("randomLevelQuit", new Dictionary<string, object>

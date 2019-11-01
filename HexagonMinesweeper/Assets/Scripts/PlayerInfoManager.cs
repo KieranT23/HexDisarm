@@ -14,6 +14,7 @@ public class PlayerInfoManager : MonoBehaviour
     private const string KEY_HAS_PROVIDED_FEEDBACK = "hasProvidedFeedback";
     private const string KEY_RANDOM_LEVELS_COMPLETED = "randomLevelsCompleted";
     private const string KEY_HAS_SHOWN_RANDOM_POPUP = "hasShownRandomPopup";
+    private const string KEY_HAS_DISABLED_ANALYTICS = "hasDisabledAnalytics";
 
     public int TimesGridGeneratedSinceFeedback
     {
@@ -63,6 +64,12 @@ public class PlayerInfoManager : MonoBehaviour
         set { PlayerPrefs.SetString(KEY_HAS_SHOWN_RANDOM_POPUP, value.ToString()); }
     }
 
+    public bool HasDisabledAnalytics
+    {
+        get { return bool.Parse(PlayerPrefs.GetString(KEY_HAS_DISABLED_ANALYTICS)); }
+        set { PlayerPrefs.SetString(KEY_HAS_DISABLED_ANALYTICS, value.ToString()); }
+    }
+
 
     private void Awake()
     {
@@ -89,5 +96,7 @@ public class PlayerInfoManager : MonoBehaviour
             AmountOfCompletedRandomLevels = 0;
         if (!PlayerPrefs.HasKey(KEY_HAS_SHOWN_RANDOM_POPUP))
             HasShownRandomPopup = false;
+        if (!PlayerPrefs.HasKey(KEY_HAS_DISABLED_ANALYTICS))
+            HasDisabledAnalytics = false;
     }
 }
