@@ -13,6 +13,12 @@ public class FeedbackPopup : PopupBase
 
     [SerializeField] private Button btn_maybeLater;
 
+    [SerializeField] private Image storeIcon;
+
+    [SerializeField] private Sprite androidStore;
+
+    [SerializeField] private Sprite iosStore;
+
     protected override void Start()
     {
         base.Start();
@@ -23,6 +29,12 @@ public class FeedbackPopup : PopupBase
             AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Closed);
             AnimateOut();
         });
+
+#if UNITY_ANDROID
+        storeIcon.sprite = androidStore;
+#elif UNITY_IOS
+        storeIcon.sprite = iosStore;
+#endif
     }
 
     private void Feedback()

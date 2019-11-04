@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +47,17 @@ public class LevelSelection : MonoBehaviour
 
     [SerializeField] private RectTransform mainCanvas;
 
+    [SerializeField] private Level[] levelsToUse;
+
+    [SerializeField] private Transition[] transitionsToUse;
+
+    [SerializeField] private Button upButton;
+
+    [SerializeField] private Button downButton;
+
     private CanvasGroup canvasGroup;
+
+    private int currentLevelGroup = 1;
 
     private void Awake()
     {
@@ -56,20 +67,78 @@ public class LevelSelection : MonoBehaviour
         {
             Destroy(this);
         }
+        gameObject.SetActive(false);
     }
 
     private void Start()
     {
         unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
-        for (int i = 0; i < Levels.AllLevels.Count; i++)
+        /*for (int i = 0; i < Levels.AllLevels.Count; i++)
         {
             CreateLevel();
-        }
+        }*/
 
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateLevelSelectToStartScreen()));
 
         canvasGroup = GetComponent<CanvasGroup>();
+        SetupLevelSelect();
+        upButton.onClick.AddListener(() =>
+        {
+            currentLevelGroup++;
+            if (currentLevelGroup > 25)
+                currentLevelGroup = 25;
+
+            SetupLevelSelect(0, true);
+        });
+
+        downButton.onClick.AddListener(() =>
+        {
+            currentLevelGroup--;
+            if (currentLevelGroup < 0)
+                currentLevelGroup = 0;
+
+            SetupLevelSelect(0, true);
+        });
         //scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
+    }
+
+    public void SetupLevelSelect(int level = 0, bool useLevelGroup = false)
+    {
+        int amountOfLevelsUnlocked = PlayerInfoManager.Instance.LevelsUnlocked;
+
+        if (level == 0)
+            level = amountOfLevelsUnlocked;
+
+        float valueToRound = level / 8;
+        int levelGroup = (int)Math.Floor(valueToRound);
+        if (useLevelGroup)
+            levelGroup = currentLevelGroup;
+        int startingValue = levelGroup * 8;
+        currentLevelGroup = levelGroup;
+
+        upButton.gameObject.SetActive(currentLevelGroup < 24);
+        downButton.gameObject.SetActive(currentLevelGroup > 0);
+
+        Color colorToSet;
+
+        for (int i = 0; i < 9; i++)
+        {
+            int value = startingValue + i + 1;
+            bool isUnlocked = value <= amountOfLevelsUnlocked;
+            bool isLastUnlockedLevel = value == amountOfLevelsUnlocked;
+            bool isNextUnlockedLevel = value == amountOfLevelsUnlocked + 1;
+
+            if (isLastUnlockedLevel)
+                colorToSet = lastUnlockedColor;
+            else if (isUnlocked)
+                colorToSet = unlockedColor;
+            else
+                colorToSet = lockedColor;
+
+            if (i != 8)
+                levelsToUse[i].Init(value, isUnlocked, isLastUnlockedLevel, isNextUnlockedLevel, colorToSet, !isUnlocked ? lockedTextColor : unlockedTextColor);
+            transitionsToUse[i].Init(colorToSet);
+        }
     }
 
     private void CreateLevel()

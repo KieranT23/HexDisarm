@@ -35,7 +35,7 @@ public class StartScreen : MonoBehaviour
 
     [SerializeField] private Button btn_audio;
 
-    [SerializeField] private Button btn_vibration;
+    [SerializeField] private Button btn_music;
 
     [SerializeField] private RectTransform returnIcon;
 
@@ -56,6 +56,18 @@ public class StartScreen : MonoBehaviour
     [SerializeField] private Button btn_restore;
 
     [SerializeField] private Button btn_dataCollection;
+
+    [SerializeField] private Button btn_vibration;
+
+    [SerializeField] private Color colorToAnimateCurrentLevelTo;
+
+    [SerializeField] private Color colorToAnimateLevelSelectButtonTo;
+
+    [SerializeField] private RectTransform selectLevelBackground;
+
+    [SerializeField] private CanvasGroup selectLevelText;
+
+    [SerializeField] private Button btn_selectLevel;
 
     private bool settingsOpen;
 
@@ -93,16 +105,23 @@ public class StartScreen : MonoBehaviour
             if (!PlayerInfoManager.Instance.HasShownRandomPopup)
             {
                 PlayerInfoManager.Instance.HasShownRandomPopup = true;
-                PopupManager.Instance.ShowRandomPopup(() => StartCoroutine(AnimateOutRandomLevel()));
+                PopupManager.Instance.ShowRandomPopup(() => StartCoroutine(AnimateOutRandomLevel(true)));
             }
                 
             else
-                StartCoroutine(AnimateOutRandomLevel());
+                StartCoroutine(AnimateOutRandomLevel(true));
         });
         btn_restore.onClick.AddListener(() => Purchaser.Instance.RestorePurchases(true));
         btn_dataCollection.onClick.AddListener(() => PopupManager.Instance.ShowDataCollectionPopup());
         settingsButtons.SetActive(false);
         canvasGroup = GetComponent<CanvasGroup>();
+        btn_selectLevel.onClick.AddListener(() => StartCoroutine(AnimateToLevelSelect()));
+    }
+
+    private void OnEnable()
+    {
+        if (PlayerInfoManager.Instance != null)
+            Init();
     }
 
     public void Init()
@@ -115,6 +134,7 @@ public class StartScreen : MonoBehaviour
         AnalyticsManager.Instance.LogFirstAction(AnalyticsManager.FirstAction.Continue);
         StartCoroutine(AnimateOut());
         //gameObject.SetActive(false);
+        //StartCoroutine(AnimateOutRandomLevel(false));
     }
 
     private void Feedback()
@@ -125,6 +145,7 @@ public class StartScreen : MonoBehaviour
 
     private IEnumerator AnimateOut()
     {
+        /*
         canvasGroup.blocksRaycasts = false;
         AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
         LeanTween.value(currentLevelBackground.gameObject, 386, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
@@ -141,13 +162,43 @@ public class StartScreen : MonoBehaviour
         else
             yield return AnimateMenuContinue();
         StartCoroutine(LevelSelection.Instance.AnimateIn());
+        gameObject.SetActive(false);*/
+        canvasGroup.blocksRaycasts = false;
+        Color colorToAnimateTo = GridGenerator3D.Instance.SetBackgroundColours(false, true);
+        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
+
+        LeanTween.value(currentLevelBackground.gameObject, 312, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
+            .setOnUpdate(
+                (float value) => { currentLevelBackground.sizeDelta = new Vector2(value, value); });
+        LeanTween.scale(randomLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(txt_currentLevel.GetComponent<CanvasGroup>(), 0f, 0.15f)
+            .setEase(LeanTweenType.easeInSine);
+        //LeanTween.alphaCanvas(randomDice, 0, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(txt_continue, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+
+        if (settingsOpen)
+            yield return AnimateSettingsContinue();
+        else
+            yield return AnimateMenuContinue();
+
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.color(currentLevelBackground, colorToAnimateTo, 0.25f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+
+        yield return new WaitForSeconds(0.25f);
+        GameManager.Instance.StartLevel(PlayerInfoManager.Instance.LevelsUnlocked);
+        //LevelSelection.Instance.gameObject.SetActive(false);
+        //StartCoroutine(LevelSelection.Instance.AnimateIn());
         gameObject.SetActive(false);
     }
 
     public IEnumerator AnimateIn()
     {
-        btn_vibration.GetComponent<MusicButton>().Init();
+        gameObject.SetActive(true);
+        btn_music.GetComponent<MusicButton>().Init();
         btn_audio.GetComponent<AudioButton>().Init();
+        btn_vibration.GetComponent<VibrationButton>().Init();
+        LeanTween.color(currentLevelBackground, colorToAnimateCurrentLevelTo, 0.35f);
         LeanTween.value(currentLevelBackground.gameObject, 4000, 386, 0.35f).setEase(LeanTweenType.easeOutSine)
             .setOnUpdate(
                 (float value) => { currentLevelBackground.sizeDelta = new Vector2(value, value); });
@@ -220,15 +271,18 @@ public class StartScreen : MonoBehaviour
         LeanTween.scale(returnIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
         RectTransform audioRect = (RectTransform)btn_audio.transform;
-        RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
+        RectTransform musicRect = (RectTransform)btn_music.transform;
+        RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
         audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, -50f);
-        vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, -50f);
+        musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, -50f);
         dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, -50f);
+        vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, -50f);
         LeanTween.value(btn_dataCollection.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
@@ -237,10 +291,18 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_vibration.gameObject, -350, -500, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_music.gameObject, -350, -500, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+            (float value) =>
+            {
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.2f);
+        LeanTween.value(btn_vibration.gameObject, -500f, -650f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
@@ -252,10 +314,18 @@ public class StartScreen : MonoBehaviour
         settingsOpen = false;
         RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
         RectTransform audioRect = (RectTransform)btn_audio.transform;
-        RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
-        LeanTween.value(btn_vibration.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        RectTransform musicRect = (RectTransform)btn_music.transform;
+        RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
+        LeanTween.value(btn_vibration.gameObject, -650, -500, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_music.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -263,6 +333,7 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -271,6 +342,7 @@ public class StartScreen : MonoBehaviour
             {
                 dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         LeanTween.scale(returnIcon, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -340,11 +412,19 @@ public class StartScreen : MonoBehaviour
     {
         settingsOpen = false;
         RectTransform audioRect = (RectTransform)btn_audio.transform;
-        RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
+        RectTransform musicRect = (RectTransform)btn_music.transform;
         RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
-        LeanTween.value(btn_vibration.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
+        LeanTween.value(btn_vibration.gameObject, -650, -500, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_music.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -352,6 +432,7 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -360,13 +441,14 @@ public class StartScreen : MonoBehaviour
             {
                 dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         LeanTween.scale(returnIcon, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
         yield return new WaitForSeconds(0.2f);
     }
 
-    private IEnumerator AnimateOutRandomLevel()
+    private IEnumerator AnimateOutRandomLevel(bool randomLevel)
     {
         canvasGroup.blocksRaycasts = false;
         AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
@@ -388,7 +470,12 @@ public class StartScreen : MonoBehaviour
         yield return new WaitForSeconds(0.15f);
         LeanTween.color(randomLevelBackground, colorToAnimateRandomBackgroundTo, 0.25f)
             .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
-        GameManager.Instance.StartRandomLevel(false);
+        if (randomLevel)
+            GameManager.Instance.StartRandomLevel(false);
+        else
+        {
+            GameManager.Instance.StartLevel(PlayerInfoManager.Instance.LevelsUnlocked);
+        }
         LevelSelection.Instance.gameObject.SetActive(false);
         //StartCoroutine(LevelSelection.Instance.AnimateIn());
         gameObject.SetActive(false);
@@ -450,5 +537,38 @@ public class StartScreen : MonoBehaviour
             });
 
         yield return new WaitForSeconds(0.15f);
+    }
+
+    private IEnumerator AnimateToLevelSelect()
+    {
+        canvasGroup.blocksRaycasts = false;
+        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
+
+        LeanTween.value(selectLevelBackground.gameObject, 312, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
+            .setOnUpdate(
+                (float value) => { selectLevelBackground.sizeDelta = new Vector2(value, value); });
+        LeanTween.scale(randomLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.scale(currentLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(selectLevelText, 0f, 0.15f)
+            .setEase(LeanTweenType.easeInSine);
+        //LeanTween.alphaCanvas(randomDice, 0, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.alphaCanvas(txt_continue, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+
+        if (settingsOpen)
+            yield return AnimateSettingsContinue();
+        else
+            yield return AnimateMenuContinue();
+
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.color(selectLevelBackground, colorToAnimateLevelSelectButtonTo, 0.25f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+
+        yield return new WaitForSeconds(0.25f);
+        LevelSelection.Instance.gameObject.SetActive(true);
+        LevelSelection.Instance.SetupLevelSelect();
+        //GameManager.Instance.StartLevel(PlayerInfoManager.Instance.LevelsUnlocked);
+        //LevelSelection.Instance.gameObject.SetActive(false);
+        //StartCoroutine(LevelSelection.Instance.AnimateIn());
+        gameObject.SetActive(false);
     }
 }

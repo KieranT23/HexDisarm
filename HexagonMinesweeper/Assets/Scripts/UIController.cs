@@ -45,6 +45,9 @@ public class UIController : MonoBehaviour
 
     [SerializeField] private Button btn_feedback;
 
+    [SerializeField] private Color whiteColour;
+    [SerializeField] private Color greyColour;
+
     [Header("Settings")]
     [SerializeField] private GameObject settings;
 
@@ -53,6 +56,8 @@ public class UIController : MonoBehaviour
     [SerializeField] private RectTransform returnIcon;
 
     [SerializeField] private Button btn_audio;
+
+    [SerializeField] private Button btn_music;
 
     [SerializeField] private Button btn_vibration;
 
@@ -168,7 +173,8 @@ public class UIController : MonoBehaviour
     public void InitSettingsButtons()
     {
         btn_audio.GetComponent<AudioButton>().Init();
-        btn_vibration.GetComponent<MusicButton>().Init();
+        btn_music.GetComponent<MusicButton>().Init();
+        btn_vibration.GetComponent<VibrationButton>().Init();
     }
 
     public void UpdateLevel(int level)
@@ -408,13 +414,14 @@ public class UIController : MonoBehaviour
             StartCoroutine(AnimateQuitRandom());
         else
             StartCoroutine(AnimateQuit());
-        GridGenerator.Instance.QuitGame();
+        //GridGenerator.Instance.QuitGame();
+        GridGenerator3D.Instance.QuitGame();
     }
 
     private IEnumerator AnimateQuit()
     {
         HideSkipButton();
-        LevelSelection.Instance.gameObject.SetActive(true);
+        //LevelSelection.Instance.gameObject.SetActive(true);
         StartCoroutine(AnimateButtonUIQuit());
         yield return new WaitForSeconds(0.3f);
         LeanTween.alphaCanvas(levelText.GetComponent<CanvasGroup>(), 0f, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -429,7 +436,8 @@ public class UIController : MonoBehaviour
             .setRecursive(false);*/
         LeanTween.scale(img_bombsRemainingBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
         yield return new WaitForSeconds(0.15f);
-        LevelSelection.Instance.Return();;
+        StartCoroutine(StartScreen.Instance.AnimateIn());
+        //LevelSelection.Instance.Return();;
         isShown = false;
     }
 
@@ -529,17 +537,27 @@ public class UIController : MonoBehaviour
         returnIcon.localScale = Vector3.zero;
         LeanTween.scale(returnIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         RectTransform audioRect = (RectTransform) btn_audio.transform;
+        RectTransform musicRect = (RectTransform) btn_music.transform;
         RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
         audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, -50f);
+        musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, -50f);
         vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, -50f);
         LeanTween.value(btn_audio.gameObject, -50f, -175f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_vibration.gameObject, -175f, -300f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_music.gameObject, -175f, -300f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+            (float value) =>
+            {
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.2f);
+        LeanTween.value(btn_vibration.gameObject, -300f, -425f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
@@ -549,11 +567,20 @@ public class UIController : MonoBehaviour
     private IEnumerator AnimateSettingsReturn()
     {
         RectTransform audioRect = (RectTransform)btn_audio.transform;
-        RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
+        RectTransform musicRect = (RectTransform)btn_music.transform;
+        RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
         LeanTween.alpha((RectTransform)btn_dim.transform, 0f, 0.25f).setEase(LeanTweenType.easeInOutSine);
+
         LeanTween.value(btn_vibration.gameObject, -300f, -175f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+        yield return new WaitForSeconds(0.15f);
+        LeanTween.value(btn_music.gameObject, -300f, -175f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -562,6 +589,7 @@ public class UIController : MonoBehaviour
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -605,19 +633,31 @@ public class UIController : MonoBehaviour
     private IEnumerator AnimateSettingsQuit()
     {
         RectTransform audioRect = (RectTransform)btn_audio.transform;
-        RectTransform vibrationRect = (RectTransform)btn_vibration.transform;
-        LeanTween.value(btn_vibration.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        RectTransform musicRect = (RectTransform)btn_music.transform;
+        RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
+        LeanTween.alpha((RectTransform)btn_dim.transform, 0f, 0.25f).setEase(LeanTweenType.easeInSine);
+
+        LeanTween.value(btn_vibration.gameObject, -425f, -300f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
-        LeanTween.alpha((RectTransform)btn_dim.transform, 0f, 0.25f).setEase(LeanTweenType.easeInSine);
-        
+
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_audio.gameObject, -200f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_music.gameObject, -300f, -175f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
+                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
+            });
+
+        yield return new WaitForSeconds(0.15f);
+
+        LeanTween.value(btn_audio.gameObject, -175f, -50f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
+                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
@@ -651,7 +691,8 @@ public class UIController : MonoBehaviour
     public IEnumerator AnimateFinalLevelFinished()
     {
         yield return new WaitForSeconds(2f);
-        yield return GridGenerator.Instance.AnimateCentreBombExplosion();
+        //yield return GridGenerator.Instance.AnimateCentreBombExplosion();
+        yield return GridGenerator3D.Instance.AnimateCentreBombExplosion();
         LeanTween.scale(img_currentLevelBackground, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
         LeanTween.scale(img_bombsRemainingBackground, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
         yield return new WaitForSeconds(0.5f);
@@ -678,6 +719,36 @@ public class UIController : MonoBehaviour
         txt_tweetMe.SetActive(true);
         btn_playRandomLevel.gameObject.SetActive(true);
         LeanTween.alphaCanvas(endGame, 1f, 0.5f).setEase(LeanTweenType.easeOutSine);
+    }
+
+    public void SetTextColour(int colour)
+    {
+        if (colour == 0 || colour == 2 || colour == 7 || colour == 8 || colour == 9)
+        {
+            completeText.color = whiteColour;
+            foreach (CanvasGroup canvasGroup in tutorialSteps)
+            {
+                canvasGroup.GetComponent<TextMeshProUGUI>().color = whiteColour;
+            }
+
+            txt_neverExpected.GetComponent<TextMeshProUGUI>().color = whiteColour;
+            txt_incredible.GetComponent<TextMeshProUGUI>().color = whiteColour;
+            txt_thanks.GetComponent<TextMeshProUGUI>().color = whiteColour;
+            txt_tweetMe.GetComponent<TextMeshProUGUI>().color = whiteColour;
+        }
+        else
+        {
+            completeText.color = greyColour;
+            foreach (CanvasGroup canvasGroup in tutorialSteps)
+            {
+                canvasGroup.GetComponent<TextMeshProUGUI>().color = greyColour;
+            }
+
+            txt_neverExpected.GetComponent<TextMeshProUGUI>().color = greyColour;
+            txt_incredible.GetComponent<TextMeshProUGUI>().color = greyColour;
+            txt_thanks.GetComponent<TextMeshProUGUI>().color = greyColour;
+            txt_tweetMe.GetComponent<TextMeshProUGUI>().color = greyColour;
+        }
     }
     #endregion
     #endregion

@@ -29,11 +29,14 @@ public class PopupBase : MonoBehaviour
         transform.localScale = Vector3.zero;
         LeanTween.alphaCanvas(img_dim, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
         LeanTween.scale(gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+        img_dim.blocksRaycasts = true;
     }
 
     public void AnimateOut()
     {
         LeanTween.alphaCanvas(img_dim, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
         LeanTween.scale(gameObject, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
+        img_dim.blocksRaycasts = false;
+        PopupManager.Instance.Hide();
     }
 }

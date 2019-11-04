@@ -79,6 +79,7 @@ public class Level : MonoBehaviour
         LeanTween.value(gameObject, rect.sizeDelta.x, 5000, 0.35f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) => { rect.sizeDelta = new Vector2(value, value); });
         yield return new WaitForSeconds(0.35f);
+        
         GameManager.Instance.StartLevel(level);
         LeanTween.color(rect, backgroundColor, 0.15f).setEase(LeanTweenType.easeInOutSine);
         yield return new WaitForSeconds(0.5f);

@@ -10,11 +10,13 @@ public class PlayerInfoManager : MonoBehaviour
     private const string KEY_TIMES_GENERATED_FEEDBACK = "timesGeneratedFeedback";
     private const string KEY_AUDIO_ON = "audioOn";
     private const string KEY_MUSIC_ON = "musicOn";
+    private const string KEY_VIBRATION_ON = "vibrationOn";
     private const string KEY_HAS_REMOVED_ADS = "hasRemovedAds";
     private const string KEY_HAS_PROVIDED_FEEDBACK = "hasProvidedFeedback";
     private const string KEY_RANDOM_LEVELS_COMPLETED = "randomLevelsCompleted";
     private const string KEY_HAS_SHOWN_RANDOM_POPUP = "hasShownRandomPopup";
     private const string KEY_HAS_DISABLED_ANALYTICS = "hasDisabledAnalytics";
+    private const string KEY_TIMES_SHOWN_REVIEW_POPUP = "timesShownReviewPopup";
 
     public int TimesGridGeneratedSinceFeedback
     {
@@ -38,6 +40,12 @@ public class PlayerInfoManager : MonoBehaviour
     {
         get { return bool.Parse(PlayerPrefs.GetString(KEY_MUSIC_ON)); }
         set { PlayerPrefs.SetString(KEY_MUSIC_ON, value.ToString()); }
+    }
+
+    public bool VibrationOn
+    {
+        get { return bool.Parse(PlayerPrefs.GetString(KEY_VIBRATION_ON)); }
+        set { PlayerPrefs.SetString(KEY_VIBRATION_ON, value.ToString()); }
     }
 
     public bool HasRemovedAds
@@ -70,6 +78,13 @@ public class PlayerInfoManager : MonoBehaviour
         set { PlayerPrefs.SetString(KEY_HAS_DISABLED_ANALYTICS, value.ToString()); }
     }
 
+    public int AmountOfTimesShownReviewPopup
+    {
+        get { return PlayerPrefs.GetInt(KEY_TIMES_SHOWN_REVIEW_POPUP); }
+        set { PlayerPrefs.SetInt(KEY_TIMES_SHOWN_REVIEW_POPUP, value); }
+    }
+
+
 
     private void Awake()
     {
@@ -98,5 +113,11 @@ public class PlayerInfoManager : MonoBehaviour
             HasShownRandomPopup = false;
         if (!PlayerPrefs.HasKey(KEY_HAS_DISABLED_ANALYTICS))
             HasDisabledAnalytics = false;
+        if (!PlayerPrefs.HasKey(KEY_VIBRATION_ON))
+            VibrationOn = true;
+        if (!PlayerPrefs.HasKey(KEY_TIMES_SHOWN_REVIEW_POPUP))
+            AmountOfTimesShownReviewPopup = 0;
+
+        LevelsUnlocked = 2;
     }
 }

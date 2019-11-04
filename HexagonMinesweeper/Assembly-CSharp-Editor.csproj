@@ -63,29 +63,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\LeanTween\Editor\LeanTweenDocumentationEditor.cs" />
-    <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="com.unity.multiplayer-hlapi.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Editor.dll</HintPath>
+    <Reference Include="Unity.TextMeshPro.Editor">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
-    <Reference Include="com.unity.multiplayer-weaver.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/com.unity.multiplayer-weaver.Editor.dll</HintPath>
+    <Reference Include="Unity.CollabProxy.Editor">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
@@ -96,11 +84,14 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.DataPrivacy">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.XR.LegacyInputHelpers">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="com.unity.multiplayer-hlapi.Runtime">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>D:/D Drive Docs/Unity/2019.1.9f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

@@ -62,13 +62,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\iOSHapticFeedback\Scripts\iOSHapticFeedback.cs" />
+    <Compile Include="Assets\iOSHapticFeedback\Scripts\iOSHapticFeedbackAdvanced.cs" />
+    <Compile Include="Assets\iOSHapticFeedback\Scripts\iOSHapticFeedbackExample.cs" />
     <Compile Include="Assets\Scripts\AdManager.cs" />
     <Compile Include="Assets\Scripts\AnalyticsManager.cs" />
     <Compile Include="Assets\Scripts\AudioManager.cs" />
     <Compile Include="Assets\Scripts\Confetti.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\GridGenerator.cs" />
+    <Compile Include="Assets\Scripts\GridGenerator3D.cs" />
     <Compile Include="Assets\Scripts\GridTile.cs" />
+    <Compile Include="Assets\Scripts\GridTile3D.cs" />
     <Compile Include="Assets\Scripts\Levels.cs" />
     <Compile Include="Assets\Scripts\PlayerInfoManager.cs" />
     <Compile Include="Assets\Scripts\Popups\DataCollectionPopup.cs" />
@@ -87,6 +92,7 @@
     <Compile Include="Assets\Scripts\UI\MusicButton.cs" />
     <Compile Include="Assets\Scripts\UI\SettingsButton.cs" />
     <Compile Include="Assets\Scripts\UI\StartScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\VibrationButton.cs" />
     <Compile Include="Assets\Scripts\UIController.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
@@ -108,29 +114,17 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
-    <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="com.unity.multiplayer-hlapi.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Editor.dll</HintPath>
+    <Reference Include="Unity.TextMeshPro.Editor">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
-    <Reference Include="com.unity.multiplayer-weaver.Editor">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/com.unity.multiplayer-weaver.Editor.dll</HintPath>
+    <Reference Include="Unity.CollabProxy.Editor">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
@@ -141,11 +135,14 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.DataPrivacy">
+      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.XR.LegacyInputHelpers">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="com.unity.multiplayer-hlapi.Runtime">
-      <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>D:/D Drive Docs/Unity/2019.1.9f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

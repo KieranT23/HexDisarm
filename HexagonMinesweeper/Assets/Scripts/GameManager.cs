@@ -49,7 +49,9 @@ public class GameManager : MonoBehaviour
         UIController.Instance.UpdateBombsRemaining(BombsToDestroy);
         if (BombsToDestroy <= 0)
         {
-            if (GridGenerator.Instance.IsGeneratingGrid)
+            /*if (GridGenerator.Instance.IsGeneratingGrid)
+                return;*/
+            if (GridGenerator3D.Instance.IsGeneratingGrid)
                 return;
             if (IsRandomLevel)
             {
@@ -122,7 +124,9 @@ public class GameManager : MonoBehaviour
         int gridSize = Random.Range(6, 9);
         int bombs = Random.Range(4, 8);
         List<int> levelInfo =  new List<int> {gridSize, bombs};
-        StartCoroutine(GridGenerator.Instance.GenerateGrid(levelInfo, levelFinished));
+        //StartCoroutine(GridGenerator.Instance.GenerateGrid(levelInfo, levelFinished));
+        StartCoroutine(GridGenerator3D.Instance.GenerateGrid(levelInfo, levelFinished));
+        //GridGenerator3D.Instance.SetBackgroundColours(false, true);
         GridRadius = levelInfo[0];
         BombsToDestroy = levelInfo[1];
         UIController.Instance.UpdateBombsRemaining(BombsToDestroy);
@@ -140,14 +144,20 @@ public class GameManager : MonoBehaviour
         bombsDisarmed = 0;
         CurrentLevel = level;
         levelInfo = Levels.AllLevels[level];
-        if (!levelSkipped)
+        /*if (!levelSkipped)
             StartCoroutine(GridGenerator.Instance.GenerateGrid(levelInfo, levelFinished));
         else
         {
             StartCoroutine(GridGenerator.Instance.AnimateSkip(levelInfo));
+        }*/
+        if (!levelSkipped)
+            StartCoroutine(GridGenerator3D.Instance.GenerateGrid(levelInfo, levelFinished));
+        else
+        {
+            StartCoroutine(GridGenerator3D.Instance.AnimateSkip(levelInfo));
         }
+        //GridGenerator3D.Instance.SetBackgroundColours(false, true);
 
-        
 
         GridRadius = levelInfo[0];
         BombsToDestroy = levelInfo[1];

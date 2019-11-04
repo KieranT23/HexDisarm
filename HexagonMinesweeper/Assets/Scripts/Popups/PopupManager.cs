@@ -19,6 +19,8 @@ public class PopupManager : MonoBehaviour
 
     [SerializeField] private CanvasGroup img_dim;
 
+    public bool IsShowingPopup { get; private set; }
+
     private void Awake()
     {
         if (Instance == null)
@@ -32,32 +34,42 @@ public class PopupManager : MonoBehaviour
 
     public void ShowFeedbackPopup()
     {
+        IsShowingPopup = true;
         feedbackPopup.gameObject.SetActive(true);
         feedbackPopup.Init();
     }
 
     public void ShowRandomPopup(UnityAction callback)
     {
+        IsShowingPopup = true;
         randomPopup.gameObject.SetActive(true);
         randomPopup.Init(callback);
     }
 
     public void ShowRemoveAds(UnityAction callback)
     {
+        IsShowingPopup = true;
         removeAdsPopup.gameObject.SetActive(true);
         removeAdsPopup.Init(callback);
     }
 
     public void ShowRestorePurchases()
     {
+        IsShowingPopup = true;
         restorePurchasesPopup.gameObject.SetActive(true);
         restorePurchasesPopup.Init();
     }
 
     public void ShowDataCollectionPopup()
     {
+        IsShowingPopup = true;
         dataCollectionPopup.gameObject.SetActive(true);
         dataCollectionPopup.Init();
+    }
+
+    public void Hide()
+    {
+        IsShowingPopup = false;
     }
 
     // Start is called before the first frame update

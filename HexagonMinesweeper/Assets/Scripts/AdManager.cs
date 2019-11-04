@@ -32,8 +32,12 @@ public class AdManager : MonoBehaviour
         if (hasRemovedAds)
             RemoveAds();
         else
+#if UNITY_ANDROID
             Advertisement.Initialize("3329503", false);
-        
+#elif UNITY_IOS
+            Advertisement.Initialize("3329502", false);
+#endif
+
     }
     private void Update()
     {
