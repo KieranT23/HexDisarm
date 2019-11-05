@@ -59,6 +59,11 @@ public class LevelSelection : MonoBehaviour
 
     private int currentLevelGroup = 1;
 
+    private Dictionary<Level, Vector2> LevelPositions = new Dictionary<Level, Vector2>();
+    private Dictionary<Level, Vector2> LevelReversedPostions = new Dictionary<Level, Vector2>();
+    private Dictionary<Transition, Vector2> transitionPositions = new Dictionary<Transition, Vector2>();
+    private Dictionary<Transition, Vector2> transitionReversedPostions = new Dictionary<Transition, Vector2>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -72,6 +77,7 @@ public class LevelSelection : MonoBehaviour
 
     private void Start()
     {
+        SetPositions();
         unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
         /*for (int i = 0; i < Levels.AllLevels.Count; i++)
         {
@@ -88,7 +94,8 @@ public class LevelSelection : MonoBehaviour
             if (currentLevelGroup > 25)
                 currentLevelGroup = 25;
 
-            SetupLevelSelect(0, true);
+            //SetupLevelSelect(0, true, false);
+            StartCoroutine(AnimateToNextArea(true));
         });
 
         downButton.onClick.AddListener(() =>
@@ -97,12 +104,51 @@ public class LevelSelection : MonoBehaviour
             if (currentLevelGroup < 0)
                 currentLevelGroup = 0;
 
-            SetupLevelSelect(0, true);
+            //SetupLevelSelect(0, true, false);
+            StartCoroutine(AnimateToNextArea(false));
         });
         //scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
     }
 
-    public void SetupLevelSelect(int level = 0, bool useLevelGroup = false)
+    private void SetPositions()
+    {
+        foreach (Transition transition in transitionsToUse)
+        {
+            RectTransform rect = (RectTransform) transition.transform;
+            transitionPositions.Add(transition, rect.anchoredPosition);
+
+            Vector2 position = rect.anchoredPosition;
+            if (rect.eulerAngles.z < 200)
+            {
+                if (rect.sizeDelta.y > 1000)
+                {
+                    position.x -= 1732f;
+                    position.y += 1000;
+                }
+                else
+                {
+                    position.x -= 173.2f;
+                    position.y += 100;
+                }
+            }
+            else
+            {
+                if (rect.sizeDelta.y > 1000)
+                {
+                    position.x += 1732f;
+                    position.y += 1000;
+                }
+                else
+                {
+                    position.x += 173.2f;
+                    position.y += 100;
+                }
+            }
+            transitionReversedPostions.Add(transition, position);
+        }
+    }
+
+    public void SetupLevelSelect(int level = 0, bool useLevelGroup = false, bool animate = true)
     {
         int amountOfLevelsUnlocked = PlayerInfoManager.Instance.LevelsUnlocked;
 
@@ -139,6 +185,79 @@ public class LevelSelection : MonoBehaviour
                 levelsToUse[i].Init(value, isUnlocked, isLastUnlockedLevel, isNextUnlockedLevel, colorToSet, !isUnlocked ? lockedTextColor : unlockedTextColor);
             transitionsToUse[i].Init(colorToSet);
         }
+
+        if (animate)
+            StartCoroutine(AnimateInAfterInit());
+    }
+
+    private IEnumerator AnimateInAfterInit(bool reversed = false)
+    {
+        foreach (Transition transition in transitionsToUse)
+        {
+            RectTransform rect = (RectTransform)transition.transform;
+            Vector2 position = rect.anchoredPosition;
+            position = reversed ? transitionReversedPostions[transition] : transitionPositions[transition];
+            rect.pivot = reversed ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(5f, 0f);
+
+        }
+            
+        foreach (Level level in levelsToUse)
+            level.transform.localScale = Vector3.zero;
+        yield return null;
+        int transitionsUsed = reversed ? 8 : 0;
+        int levelsUsed = reversed ? 7 : 0;
+        for (int i = 0; i < 17; i++)
+        {
+            int iValue = i;
+            if (reversed)
+            {
+                iValue = 16 - i;
+            }
+            
+            if (iValue % 2 == 0)
+            {
+                float valueToAnimateTo = 200;
+                if (i == 0 || i == 16)
+                    valueToAnimateTo = 2000;
+                RectTransform transitionRect = (RectTransform) transitionsToUse[transitionsUsed].transform;
+                LeanTween.value(transitionRect.gameObject, 0f, valueToAnimateTo, 0.1f).setEase(LeanTweenType.easeOutSine)
+                    .setOnUpdate(
+                        (float value) => { transitionRect.sizeDelta = new Vector2(5f, value); });
+                if (reversed)
+                    transitionsUsed--;
+                else
+                    transitionsUsed++;
+                yield return new WaitForSeconds(0.1f);
+
+            }
+            else
+            {
+                LeanTween.scale(levelsToUse[levelsUsed].gameObject, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+                if (reversed)
+                    levelsUsed--;
+                else
+                    levelsUsed++;
+                yield return new WaitForSeconds(0.15f);
+            }
+        }
+    }
+
+    private IEnumerator AnimateToNextArea(bool nextGroup)
+    {
+        Vector2 pos = scrollContent.anchoredPosition;
+        LeanTween.value(scrollContent.gameObject, scrollContent.anchoredPosition.y,
+                nextGroup ? -mainCanvas.sizeDelta.y : mainCanvas.sizeDelta.y, 0.25f).setEase(LeanTweenType.easeInSine)
+            .setOnUpdate(
+                (float value) =>
+                {
+                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, value);
+                });
+        yield return new WaitForSeconds(0.25f);
+        SetupLevelSelect(0, true, false);
+        scrollContent.anchoredPosition = pos;
+        StartCoroutine(AnimateInAfterInit(!nextGroup));
     }
 
     private void CreateLevel()
