@@ -549,6 +549,7 @@ public class GridGenerator3D : MonoBehaviour
     private void GrabGridFromPool(int radius)
     {
         gridTiles = new List<GridTile3D>();
+        instantiatedBombs = new List<GridTile3D>();
 
         for (int i = 0; i < holders.Count; i++)
         {
