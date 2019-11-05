@@ -168,7 +168,7 @@ public class GridGenerator3D : MonoBehaviour
                 if (PlayerInfoManager.Instance.AmountOfTimesShownReviewPopup < 3)
                 {
                     PlayerInfoManager.Instance.AmountOfTimesShownReviewPopup++;
-                    Device.RequestStoreReview()
+                    Device.RequestStoreReview();
                 }
                 
 #endif
