@@ -78,10 +78,11 @@ public class Level : MonoBehaviour
         RectTransform rect = (RectTransform) transform;
         LeanTween.value(gameObject, rect.sizeDelta.x, 5000, 0.35f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) => { rect.sizeDelta = new Vector2(value, value); });
+        Color colorToAnimateTo = GridGenerator3D.Instance.SetBackgroundColours(false, true);
         yield return new WaitForSeconds(0.35f);
         
         GameManager.Instance.StartLevel(level);
-        LeanTween.color(rect, backgroundColor, 0.15f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.color(rect, colorToAnimateTo, 0.15f).setEase(LeanTweenType.easeInOutSine);
         yield return new WaitForSeconds(0.5f);
         levelSelectionCanvasGroup.alpha = 0f;
         //Reset

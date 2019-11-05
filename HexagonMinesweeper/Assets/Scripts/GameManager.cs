@@ -124,6 +124,8 @@ public class GameManager : MonoBehaviour
         int gridSize = Random.Range(6, 9);
         int bombs = Random.Range(4, 8);
         List<int> levelInfo =  new List<int> {gridSize, bombs};
+        if (!levelFinished)
+            StartCoroutine(GridGenerator3D.Instance.AnimateGridIntoView());
         //StartCoroutine(GridGenerator.Instance.GenerateGrid(levelInfo, levelFinished));
         StartCoroutine(GridGenerator3D.Instance.GenerateGrid(levelInfo, levelFinished));
         //GridGenerator3D.Instance.SetBackgroundColours(false, true);
@@ -156,6 +158,9 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(GridGenerator3D.Instance.AnimateSkip(levelInfo));
         }
+
+        if (!levelFinished && !levelSkipped)
+            StartCoroutine(GridGenerator3D.Instance.AnimateGridIntoView());
         //GridGenerator3D.Instance.SetBackgroundColours(false, true);
 
 
@@ -185,7 +190,7 @@ public class GameManager : MonoBehaviour
         if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
             PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
         //StartCoroutine(UIController.Instance.ShowCompleteLevelText());
-        StartLevel(CurrentLevel);
+        StartLevel(CurrentLevel, true);
     }
 
     private IEnumerator WaitForLogReset()

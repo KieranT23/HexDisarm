@@ -163,6 +163,7 @@ public class StartScreen : MonoBehaviour
             yield return AnimateMenuContinue();
         StartCoroutine(LevelSelection.Instance.AnimateIn());
         gameObject.SetActive(false);*/
+        LevelSelection.Instance.gameObject.SetActive(false);
         canvasGroup.blocksRaycasts = false;
         Color colorToAnimateTo = GridGenerator3D.Instance.SetBackgroundColours(false, true);
         AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
@@ -171,6 +172,7 @@ public class StartScreen : MonoBehaviour
             .setOnUpdate(
                 (float value) => { currentLevelBackground.sizeDelta = new Vector2(value, value); });
         LeanTween.scale(randomLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.scale(selectLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
         LeanTween.alphaCanvas(txt_currentLevel.GetComponent<CanvasGroup>(), 0f, 0.15f)
             .setEase(LeanTweenType.easeInSine);
         //LeanTween.alphaCanvas(randomDice, 0, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -198,6 +200,13 @@ public class StartScreen : MonoBehaviour
         btn_music.GetComponent<MusicButton>().Init();
         btn_audio.GetComponent<AudioButton>().Init();
         btn_vibration.GetComponent<VibrationButton>().Init();
+        selectLevelBackground.sizeDelta = new Vector2(312f, 312f);
+        selectLevelText.alpha = 1f;
+        currentLevelBackground.sizeDelta = new Vector2(4000, 4000);
+        currentLevelBackground.localScale = Vector3.one;
+        selectLevelBackground.localScale = Vector3.zero;
+        LeanTween.color(selectLevelBackground, colorToAnimateRandomBackgroundFrom, 0f);
+        //LeanTween.color(currentLevelBackground, colorToAnimateCurrentLevel, 0.35f);
         LeanTween.color(currentLevelBackground, colorToAnimateCurrentLevelTo, 0.35f);
         LeanTween.value(currentLevelBackground.gameObject, 4000, 386, 0.35f).setEase(LeanTweenType.easeOutSine)
             .setOnUpdate(
@@ -207,6 +216,7 @@ public class StartScreen : MonoBehaviour
         LeanTween.alphaCanvas(txt_continue, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
         LeanTween.alphaCanvas(randomText, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
         LeanTween.scale(randomLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(selectLevelBackground, Vector3.one, 0.15f);
 
         RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
         RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
@@ -461,6 +471,7 @@ public class StartScreen : MonoBehaviour
             .setEase(LeanTweenType.easeInSine);
         LeanTween.alphaCanvas(randomDice, 0, 0.15f).setEase(LeanTweenType.easeInSine);
         LeanTween.alphaCanvas(txt_continue, 0f, 0.15f).setEase(LeanTweenType.easeInSine);
+        LeanTween.scale(selectLevelBackground, Vector3.zero, 0.15f).setEase(LeanTweenType.easeInSine);
 
         if (settingsOpen)
             yield return AnimateSettingsContinue();
@@ -492,6 +503,7 @@ public class StartScreen : MonoBehaviour
                 (float value) => { randomLevelBackground.sizeDelta = new Vector2(value, value); });
         yield return new WaitForSeconds(0.2f);
         LeanTween.scale(currentLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(selectLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         LeanTween.alphaCanvas(randomText.GetComponent<CanvasGroup>(), 1f, 0.15f)
             .setEase(LeanTweenType.easeInSine);
         LeanTween.alphaCanvas(randomDice, 1, 0.15f).setEase(LeanTweenType.easeInSine);
@@ -570,5 +582,50 @@ public class StartScreen : MonoBehaviour
         //LevelSelection.Instance.gameObject.SetActive(false);
         //StartCoroutine(LevelSelection.Instance.AnimateIn());
         gameObject.SetActive(false);
+        canvasGroup.blocksRaycasts = true;
+    }
+
+    public IEnumerator AnimateFromLevelSelect()
+    {
+        gameObject.SetActive(true);
+        btn_music.GetComponent<MusicButton>().Init();
+        btn_audio.GetComponent<AudioButton>().Init();
+        btn_vibration.GetComponent<VibrationButton>().Init();
+        LeanTween.color(selectLevelBackground, colorToAnimateRandomBackgroundFrom, 0.35f);
+        LeanTween.value(selectLevelBackground.gameObject, 4000, 312, 0.35f).setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate(
+                (float value) => { selectLevelBackground.sizeDelta = new Vector2(value, value); });
+        yield return new WaitForSeconds(0.2f);
+        LeanTween.alphaCanvas(selectLevelText, 1f, 0.15f);
+        LeanTween.scale(currentLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.alphaCanvas(txt_currentLevel.GetComponent<CanvasGroup>(), 1f, 0.15f)
+            .setEase(LeanTweenType.easeOutSine);
+        LeanTween.alphaCanvas(txt_continue, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
+        LeanTween.alphaCanvas(randomText, 1f, 0.15f).setEase(LeanTweenType.easeOutSine);
+        LeanTween.scale(randomLevelBackground, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+
+        RectTransform noAdsRect = (RectTransform)btn_noAds.transform;
+        RectTransform feedbackRect = (RectTransform)btn_feedback.transform;
+
+        LeanTween.color((RectTransform)btn_settings.transform, colorToAnimateSettingsFrom, 0.15f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+
+        LeanTween.value(btn_feedback.gameObject, -50f, -200f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+            (float value) =>
+            {
+                feedbackRect.anchoredPosition = new Vector2(feedbackRect.anchoredPosition.x, value);
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+
+        yield return new WaitForSeconds(0.2f);
+        LeanTween.scale(settingsIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.value(btn_noAds.gameObject, -200f, -350f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+            (float value) =>
+            {
+                noAdsRect.anchoredPosition = new Vector2(noAdsRect.anchoredPosition.x, value);
+            });
+
+        yield return new WaitForSeconds(0.15f);
+        canvasGroup.blocksRaycasts = true;
     }
 }

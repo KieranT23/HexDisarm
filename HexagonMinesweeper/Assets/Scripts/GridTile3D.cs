@@ -402,7 +402,7 @@ public class GridTile3D : MonoBehaviour
 
         if (!GameManager.Instance.IsRandomLevel && GameManager.Instance.CurrentLevel == 1)
         {
-            GameManager.Instance.FinishTutorialLevel();
+            StartCoroutine(HandleTutorialLevelFinished());
             return;
         }
 
@@ -417,6 +417,16 @@ public class GridTile3D : MonoBehaviour
 
             bombsChecked++;
         }
+    }
+
+    private IEnumerator HandleTutorialLevelFinished()
+    {
+        Confetti.Instance.Play();
+        
+        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.WIN);
+        GridGenerator3D.Instance.SetBlocksRaycasts(false);
+        yield return UIController.Instance.ShowCompleteLevelText();
+        GameManager.Instance.FinishTutorialLevel();
     }
 
     private IEnumerator WaitBeforeCheckingBomb(GridTile3D bomb)

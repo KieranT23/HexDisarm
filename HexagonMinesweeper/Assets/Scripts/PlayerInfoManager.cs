@@ -118,6 +118,6 @@ public class PlayerInfoManager : MonoBehaviour
         if (!PlayerPrefs.HasKey(KEY_TIMES_SHOWN_REVIEW_POPUP))
             AmountOfTimesShownReviewPopup = 0;
 
-        LevelsUnlocked = 2;
+        LevelsUnlocked = 1;
     }
 }

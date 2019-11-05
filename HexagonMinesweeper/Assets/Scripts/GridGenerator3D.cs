@@ -126,10 +126,15 @@ public class GridGenerator3D : MonoBehaviour
     public void SetBlocksRaycasts(bool blockRaycasts)
     {
         gridCanvasGroup.blocksRaycasts = blockRaycasts;
+        foreach (GridTile3D tile in unusedTiles)
+        {
+            tile.GetComponent<MeshCollider>().enabled = blockRaycasts;
+        }
     }
 
     public IEnumerator GenerateGrid(List<int> levelInfo, bool levelCompleted = false)
     {
+        hexContent.gameObject.SetActive(true);
         if (levelCompleted)
         {
             AnimateLevelComplete();
@@ -138,7 +143,8 @@ public class GridGenerator3D : MonoBehaviour
             
         GrabGridFromPool(levelInfo[0]);
         //hexContent.transform.position = new Vector3(150f, -187f, 20.24f);
-        gridCanvasGroup.blocksRaycasts = false;
+        SetBlocksRaycasts(false);
+        //gridCanvasGroup.blocksRaycasts = false;
         timesGenerated++;
         PlayerInfoManager.Instance.TimesGridGeneratedSinceFeedback++;
         if (levelCompleted)
@@ -369,7 +375,7 @@ public class GridGenerator3D : MonoBehaviour
         AdManager.Instance.ShowBanner();
         hasGeneratedBefore = true;
         IsGeneratingGrid = false;
-        gridCanvasGroup.blocksRaycasts = true;
+        SetBlocksRaycasts(true);
         yield return null;
     }
 
@@ -410,18 +416,17 @@ public class GridGenerator3D : MonoBehaviour
     private IEnumerator AnimateQuit()
     {
         //LeanTween.moveX(hexContent.gameObject, 150f, 0.5f).setEase(LeanTweenType.easeInSine);
+        SetBlocksRaycasts(false);
         gridCanvasGroup.blocksRaycasts = false;
-        for (int i = gridTiles.Count - 1; i >= 0; i--)
+        LeanTween.moveX(hexContent.gameObject, 200f, 0.5f).setEase(LeanTweenType.easeInQuint).setOnComplete(() =>
         {
-            if (i == 1 || i == 7 || i == 19 || i == 37 || i == 61 || i == 91 || i == 127)
-                yield return new WaitForSeconds(0.05f);
-
-            /*LeanTween.scale(gridTiles[i].gameObject, Vector3.zero, 0.1f)
-                .setEase(LeanTweenType.easeInSine);*/
-        }
+            hexContent.position = new Vector3(0f, 200f, 170f);
+        });
 
         yield return new WaitForSeconds(0.5f);
+        SetBlocksRaycasts(true);
         gridCanvasGroup.blocksRaycasts = true;
+        hexContent.gameObject.SetActive(false);
     }
 
     public IEnumerator AnimateSkip(List<int> levelInfo)
@@ -596,6 +601,23 @@ public class GridGenerator3D : MonoBehaviour
             unusedTiles[0].transform.parent = hexContent;
             gridTiles.Add(unusedTiles[0]);
         }
+    }
+
+    public IEnumerator AnimateGridIntoView()
+    {
+        //LeanTween.moveX(hexContent.gameObject, 150f, 0.5f).setEase(LeanTweenType.easeInSine);
+        /*SetBlocksRaycasts(false);
+        gridCanvasGroup.blocksRaycasts = false;
+        hexContent.position = new Vector3(200f, 200f, 170f);
+        LeanTween.moveX(hexContent.gameObject, 0f, 0.5f).setEase(LeanTweenType.easeOutQuint).setOnComplete(() =>
+        {
+            hexContent.position = new Vector3(0f, 200f, 170f);
+        });
+
+        yield return new WaitForSeconds(0.5f);
+        SetBlocksRaycasts(true);
+        gridCanvasGroup.blocksRaycasts = true;*/
+        yield return null;
     }
 
 

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -55,6 +56,8 @@ public class LevelSelection : MonoBehaviour
 
     [SerializeField] private Button downButton;
 
+    [SerializeField] private Scrollbar scrollbar;
+
     private CanvasGroup canvasGroup;
 
     private int currentLevelGroup = 1;
@@ -63,6 +66,9 @@ public class LevelSelection : MonoBehaviour
     private Dictionary<Level, Vector2> LevelReversedPostions = new Dictionary<Level, Vector2>();
     private Dictionary<Transition, Vector2> transitionPositions = new Dictionary<Transition, Vector2>();
     private Dictionary<Transition, Vector2> transitionReversedPostions = new Dictionary<Transition, Vector2>();
+
+    private bool canMoveDown;
+    private bool canMoveUp;
 
     private void Awake()
     {
@@ -73,11 +79,11 @@ public class LevelSelection : MonoBehaviour
             Destroy(this);
         }
         gameObject.SetActive(false);
+        SetPositions();
     }
 
     private void Start()
     {
-        SetPositions();
         unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
         /*for (int i = 0; i < Levels.AllLevels.Count; i++)
         {
@@ -90,24 +96,58 @@ public class LevelSelection : MonoBehaviour
         SetupLevelSelect();
         upButton.onClick.AddListener(() =>
         {
-            currentLevelGroup++;
-            if (currentLevelGroup > 25)
-                currentLevelGroup = 25;
-
-            //SetupLevelSelect(0, true, false);
-            StartCoroutine(AnimateToNextArea(true));
+            
         });
 
         downButton.onClick.AddListener(() =>
         {
-            currentLevelGroup--;
-            if (currentLevelGroup < 0)
-                currentLevelGroup = 0;
-
-            //SetupLevelSelect(0, true, false);
-            StartCoroutine(AnimateToNextArea(false));
+            
         });
         //scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
+    }
+
+    private void OnEnable()
+    {
+        SwipeManager.Instance.gameObject.SetActive(true);
+        SwipeManager.Instance.OnSwipeDown.RemoveAllListeners();
+        SwipeManager.Instance.OnSwipeUp.RemoveAllListeners();
+        SwipeManager.Instance.OnSwipeDown.AddListener(NavigateUp);
+        SwipeManager.Instance.OnSwipeUp.AddListener(NavigateDown);
+    }
+
+    private void OnDisable()
+    {
+        if (SwipeManager.Instance == null)
+        {
+            return;
+        }
+        SwipeManager.Instance.OnSwipeDown.RemoveListener(NavigateUp);
+        SwipeManager.Instance.OnSwipeUp.RemoveListener(NavigateDown);
+        SwipeManager.Instance.gameObject.SetActive(false);
+    }
+
+    private void NavigateUp()
+    {
+        if (!canMoveUp)
+            return;
+        currentLevelGroup++;
+        if (currentLevelGroup > 25)
+            currentLevelGroup = 25;
+
+        //SetupLevelSelect(0, true, false);
+        StartCoroutine(AnimateToNextArea(true));
+    }
+
+    private void NavigateDown()
+    {
+        if (!canMoveDown)
+            return;
+        currentLevelGroup--;
+        if (currentLevelGroup < 0)
+            currentLevelGroup = 0;
+
+        //SetupLevelSelect(0, true, false);
+        StartCoroutine(AnimateToNextArea(false));
     }
 
     private void SetPositions()
@@ -150,6 +190,11 @@ public class LevelSelection : MonoBehaviour
 
     public void SetupLevelSelect(int level = 0, bool useLevelGroup = false, bool animate = true)
     {
+        
+        canMoveUp = false;
+        canMoveDown = false;
+        returnIcon.localScale = Vector3.one;
+
         int amountOfLevelsUnlocked = PlayerInfoManager.Instance.LevelsUnlocked;
 
         if (level == 0)
@@ -162,8 +207,7 @@ public class LevelSelection : MonoBehaviour
         int startingValue = levelGroup * 8;
         currentLevelGroup = levelGroup;
 
-        upButton.gameObject.SetActive(currentLevelGroup < 24);
-        downButton.gameObject.SetActive(currentLevelGroup > 0);
+        scrollbar.value = (0.04f * currentLevelGroup);
 
         Color colorToSet;
 
@@ -192,11 +236,16 @@ public class LevelSelection : MonoBehaviour
 
     private IEnumerator AnimateInAfterInit(bool reversed = false)
     {
+        float transitionTime = 0.05f;
+        float levelTime = 0.075f;
+        float delay = 0.05f;
+
         foreach (Transition transition in transitionsToUse)
         {
             RectTransform rect = (RectTransform)transition.transform;
             Vector2 position = rect.anchoredPosition;
-            position = reversed ? transitionReversedPostions[transition] : transitionPositions[transition];
+            if ((reversed && transitionReversedPostions.ContainsKey(transition)) || (!reversed && transitionPositions.ContainsKey(transition)))
+                position = reversed ? transitionReversedPostions[transition] : transitionPositions[transition];
             rect.pivot = reversed ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0f);
             rect.anchoredPosition = position;
             rect.sizeDelta = new Vector2(5f, 0f);
@@ -210,6 +259,15 @@ public class LevelSelection : MonoBehaviour
         int levelsUsed = reversed ? 7 : 0;
         for (int i = 0; i < 17; i++)
         {
+            if (i == 0 && !reversed && currentLevelGroup == 0)
+                continue;
+            else if (i == 0 && reversed && currentLevelGroup >= 24)
+                continue;
+            else if (i == 16 && reversed && currentLevelGroup == 0)
+                continue;
+            else if (i == 16 && !reversed && currentLevelGroup >= 24)
+                continue;
+
             int iValue = i;
             if (reversed)
             {
@@ -222,33 +280,39 @@ public class LevelSelection : MonoBehaviour
                 if (i == 0 || i == 16)
                     valueToAnimateTo = 2000;
                 RectTransform transitionRect = (RectTransform) transitionsToUse[transitionsUsed].transform;
-                LeanTween.value(transitionRect.gameObject, 0f, valueToAnimateTo, 0.1f).setEase(LeanTweenType.easeOutSine)
+                LeanTween.value(transitionRect.gameObject, 0f, valueToAnimateTo, transitionTime).setEase(LeanTweenType.easeOutSine)
                     .setOnUpdate(
                         (float value) => { transitionRect.sizeDelta = new Vector2(5f, value); });
                 if (reversed)
                     transitionsUsed--;
                 else
                     transitionsUsed++;
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(transitionTime);
 
             }
             else
             {
-                LeanTween.scale(levelsToUse[levelsUsed].gameObject, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
+                LeanTween.scale(levelsToUse[levelsUsed].gameObject, Vector3.one, levelTime).setEase(LeanTweenType.easeOutBack);
                 if (reversed)
                     levelsUsed--;
                 else
                     levelsUsed++;
-                yield return new WaitForSeconds(0.15f);
+                yield return new WaitForSeconds(levelTime);
             }
         }
+
+        canMoveUp = currentLevelGroup < 24;
+        canMoveDown = currentLevelGroup > 0;
+        canvasGroup.blocksRaycasts = true;
     }
 
     private IEnumerator AnimateToNextArea(bool nextGroup)
     {
+        canMoveUp = false;
+        canMoveDown = false;
         Vector2 pos = scrollContent.anchoredPosition;
         LeanTween.value(scrollContent.gameObject, scrollContent.anchoredPosition.y,
-                nextGroup ? -mainCanvas.sizeDelta.y : mainCanvas.sizeDelta.y, 0.25f).setEase(LeanTweenType.easeInSine)
+                nextGroup ? -mainCanvas.sizeDelta.y : mainCanvas.sizeDelta.y, 0.15f).setEase(LeanTweenType.easeInSine)
             .setOnUpdate(
                 (float value) =>
                 {
@@ -451,26 +515,17 @@ public class LevelSelection : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         float screenHeight = mainCanvas.sizeDelta.y;
         float testObjectPos = -scrollContent.anchoredPosition.y;
-        float movementAmount = screenHeight + testObjectPos;
+        float movementAmount = -screenHeight;
         LeanTween.scale(returnIcon, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
-        LeanTween.value(gameObject, 0f, movementAmount, 2f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(gameObject, 0f, movementAmount, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
-                float testValue = value;
-                if (value <= testObjectPos)
-                {
-                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, -(testObjectPos - value));
-                }
-                else
-                {
-                    scrollContent.anchoredPosition = Vector2.zero;
-                    scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, value - testObjectPos);
-                }
+                    scrollContent.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, value);
             });
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(0.15f);
+        scrollContent.anchoredPosition = Vector2.zero;
+        returnIcon.localScale = Vector3.one;
         StartScreen.Instance.gameObject.SetActive(true);
-        StartCoroutine(StartScreen.Instance.AnimateIn());
-
-        //scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight);
+        StartCoroutine(StartScreen.Instance.AnimateFromLevelSelect());
     }
 }
