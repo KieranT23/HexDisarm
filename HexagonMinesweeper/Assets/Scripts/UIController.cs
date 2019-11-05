@@ -305,12 +305,17 @@ public class UIController : MonoBehaviour
         tutorialSteps[step].gameObject.SetActive(true);
         tutorialSteps[step].alpha = 0f;
         LeanTween.alphaCanvas(tutorialSteps[step], 1f, 1f).setEase(LeanTweenType.easeOutSine);
+        LeanTween.scale(tutorialSteps[step].gameObject, Vector3.one * 1.09f, 2f).setEase(LeanTweenType.easeInOutSine)
+            .setLoopPingPong();
     }
 
     public void HideCurrentlyActiveTip()
     {
-        LeanTween.alphaCanvas(tutorialSteps[currentlyActiveTip], 0f, 1f).setEase(LeanTweenType.easeInSine);
-        tutorialSteps[currentlyActiveTip].gameObject.SetActive(false);
+        int currentlyShowingTip = currentlyActiveTip;
+        LeanTween.cancel(tutorialSteps[currentlyShowingTip].gameObject);
+        LeanTween.alphaCanvas(tutorialSteps[currentlyShowingTip], 0f, 1f).setEase(LeanTweenType.easeInSine)
+            .setOnComplete(() => tutorialSteps[currentlyShowingTip].gameObject.SetActive(false));
+
     }
     #endregion
     #region Private

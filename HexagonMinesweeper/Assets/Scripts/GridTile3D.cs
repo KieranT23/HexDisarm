@@ -422,7 +422,7 @@ public class GridTile3D : MonoBehaviour
     private IEnumerator HandleTutorialLevelFinished()
     {
         Confetti.Instance.Play();
-        
+        UIController.Instance.HideCurrentlyActiveTip();
         AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.WIN);
         GridGenerator3D.Instance.SetBlocksRaycasts(false);
         yield return UIController.Instance.ShowCompleteLevelText();

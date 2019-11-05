@@ -117,7 +117,5 @@ public class PlayerInfoManager : MonoBehaviour
             VibrationOn = true;
         if (!PlayerPrefs.HasKey(KEY_TIMES_SHOWN_REVIEW_POPUP))
             AmountOfTimesShownReviewPopup = 0;
-
-        LevelsUnlocked = 1;
     }
 }

@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour
 
     public void FinishTutorialLevel()
     {
-        UIController.Instance.HideCurrentlyActiveTip();
+        
         AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int)timeTakenOnLevel, triesOnLevel);
         CurrentLevel++;
         if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)

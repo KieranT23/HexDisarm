@@ -394,10 +394,10 @@ public class GridGenerator3D : MonoBehaviour
                 scale = 6;
                 break;
             case 5:
-                scale = 5.75f;
+                scale = 5.5f;
                 break;
             case 6:
-                scale = 5;
+                scale = 4.5f;
                 break;
             case 7:
                 scale = 4;
