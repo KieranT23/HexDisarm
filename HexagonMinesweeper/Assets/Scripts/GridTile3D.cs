@@ -372,6 +372,15 @@ public class GridTile3D : MonoBehaviour
         if (HasFlipped)
             return;
 
+        if (storedColor == warningColor)
+            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactLight);
+        else if (storedColor == dangerousColor)
+            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactMedium);
+        else if (storedColor == alertColor || storedColor == multiAlertColor || storedColor == threeBombColor)
+            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactHeavy);
+        else if (IsBomb)
+            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Failure);
+
         if (storedColor == Color.clear)
             storedColor = safeColor;
 
@@ -443,6 +452,7 @@ public class GridTile3D : MonoBehaviour
         GridGenerator3D.Instance.IsAnimating = true;
         hasAnimatedDisarm = true;
         yield return new WaitForSeconds(1f);
+        iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Success);
 
         Dictionary<int, List<List<GridTile3D>>> neighboursToLoop = new Dictionary<int, List<List<GridTile3D>>>();
         List<List<GridTile3D>> tiles = new List<List<GridTile3D>>();

@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
             Instance = this;
         else
             Destroy(this);
+
+        Input.multiTouchEnabled = false;
     }
 
     private void Update()

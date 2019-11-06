@@ -255,7 +255,7 @@ public class UIController : MonoBehaviour
                 break;
             case 1:
                 textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, 100f);
-                LeanTween.value(textRect.gameObject, textRect.anchoredPosition.y, -393f, 0.35f)
+                LeanTween.value(textRect.gameObject, textRect.anchoredPosition.y, -450f, 0.35f)
                     .setEase(LeanTweenType.easeOutSine).setOnUpdate(
                         (float value) =>
                         {
@@ -270,7 +270,7 @@ public class UIController : MonoBehaviour
                             textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, value);
                         });
                 yield return new WaitForSeconds(0.25f);
-                textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, -393f);
+                textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, -450f);
                 break;
             case 2:
                 textRect = (RectTransform)completeText.transform;
@@ -290,7 +290,7 @@ public class UIController : MonoBehaviour
                             textRect.anchoredPosition = new Vector2(value, textRect.anchoredPosition.y);
                         });
                 yield return new WaitForSeconds(0.25f);
-                textRect.anchoredPosition = new Vector2(0f, -textRect.anchoredPosition.y);
+                textRect.anchoredPosition = new Vector2(0f, textRect.anchoredPosition.y);
                 break;
         }
 
@@ -415,6 +415,7 @@ public class UIController : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         endGame.gameObject.SetActive(false);
         AdManager.Instance.HideBanner();
+        UIController.Instance.HideCurrentlyActiveTip();
         if (GameManager.Instance.IsRandomLevel)
             StartCoroutine(AnimateQuitRandom());
         else

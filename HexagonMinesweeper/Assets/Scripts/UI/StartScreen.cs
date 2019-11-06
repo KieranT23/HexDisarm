@@ -200,6 +200,8 @@ public class StartScreen : MonoBehaviour
         btn_music.GetComponent<MusicButton>().Init();
         btn_audio.GetComponent<AudioButton>().Init();
         btn_vibration.GetComponent<VibrationButton>().Init();
+        menuButtons.SetActive(true);
+        settingsButtons.SetActive(false);
         selectLevelBackground.sizeDelta = new Vector2(312f, 312f);
         selectLevelText.alpha = 1f;
         currentLevelBackground.sizeDelta = new Vector2(4000, 4000);

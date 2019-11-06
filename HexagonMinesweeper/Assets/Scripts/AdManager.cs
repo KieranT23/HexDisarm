@@ -31,7 +31,6 @@ public class AdManager : MonoBehaviour
         hasRemovedAds = PlayerInfoManager.Instance.HasRemovedAds;
         if (hasRemovedAds)
             RemoveAds();
-        else
 #if UNITY_ANDROID
             Advertisement.Initialize("3329503", false);
 #elif UNITY_IOS

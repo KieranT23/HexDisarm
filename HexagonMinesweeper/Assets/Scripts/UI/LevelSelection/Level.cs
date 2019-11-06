@@ -22,6 +22,9 @@ public class Level : MonoBehaviour
 
     [SerializeField] private GameObject pn_lock;
 
+    [SerializeField] private Color lockColor;
+    public bool IsAnimating;
+
     private void Start()
     {
         
@@ -29,9 +32,12 @@ public class Level : MonoBehaviour
 
     public void Init(int level, bool isUnlocked, bool isLastUnlockedLevel, bool isNextLockedLevel, Color colorToSet, Color textColor)
     {
+        if (isNextLockedLevel)
+            Debug.Log("What is going on here?", gameObject);
         background = GetComponent<Image>();
         canvas = GetComponent<Canvas>();
         txt_level.text = level.ToString();
+        btn_startLevel.onClick.RemoveAllListeners();
         btn_startLevel.onClick.AddListener(() =>
         {
             if (isUnlocked)
@@ -44,6 +50,8 @@ public class Level : MonoBehaviour
 
         transform.localScale = isLastUnlockedLevel ? Vector3.one * 1.25f : Vector3.one;
         pn_lock.gameObject.SetActive(!isUnlocked);
+        LeanTween.alpha((RectTransform)pn_lock.transform, 0.4f, 0f).setEase(LeanTweenType.easeInSine);
+        LeanTween.color((RectTransform)pn_lock.transform, lockColor, 0f);
         pn_unlockPanel.gameObject.SetActive(isNextLockedLevel);
         txt_level.color = textColor;
 
@@ -66,8 +74,10 @@ public class Level : MonoBehaviour
 
     private IEnumerator AnimateLevelSelect(int level)
     {
+        if (IsAnimating)
+            yield break;
         CanvasGroup levelSelectionCanvasGroup = LevelSelection.Instance.GetComponent<CanvasGroup>();
-        levelSelectionCanvasGroup.blocksRaycasts = false;
+        //levelSelectionCanvasGroup.blocksRaycasts = false;
         LevelSelection.Instance.SetBlocksRaycast(false);
         AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
         Color originalColor = background.color;
@@ -84,7 +94,7 @@ public class Level : MonoBehaviour
         GameManager.Instance.StartLevel(level);
         LeanTween.color(rect, colorToAnimateTo, 0.15f).setEase(LeanTweenType.easeInOutSine);
         yield return new WaitForSeconds(0.5f);
-        levelSelectionCanvasGroup.alpha = 0f;
+        levelSelectionCanvasGroup.alpha = 1f;
         //Reset
         LeanTween.alphaCanvas(txt_level.GetComponent<CanvasGroup>(), 1f, 0f).setEase(LeanTweenType.easeInSine);
         canvas.overrideSorting = false;

@@ -459,26 +459,51 @@ public class LevelSelection : MonoBehaviour
 
     private IEnumerator AnimateUnlockLevel(int level)
     {
-        LeanTween.color((RectTransform)transitions[level - 2].transform, unlockedColor, 0.25f).setEase(LeanTweenType.easeInSine);
+        int newLevel = (level - (currentLevelGroup * 8)) - 1;
+        levelsToUse[newLevel].IsAnimating = true;
+
+        if (newLevel >= 1)
+        {
+            LeanTween.color((RectTransform)transitionsToUse[newLevel - 1].transform, unlockedColor, 0.25f).setEase(LeanTweenType.easeInSine);
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        if (newLevel >= 1)
+        {
+            LeanTween.scale(levelsToUse[newLevel - 1].gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeInOutSine);
+            LeanTween.color((RectTransform)levelsToUse[newLevel - 1].transform, unlockedColor, 0.25f)
+                .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        LeanTween.color((RectTransform)transitionsToUse[newLevel].transform, lastUnlockedColor, 0.25f).setEase(LeanTweenType.easeInSine).setRecursive(false);
+        levelsToUse[newLevel].AnimateOutLockedItems(unlockedTextColor);
         yield return new WaitForSeconds(0.25f);
-        LeanTween.scale(levels[level - 1].gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeInOutSine);
-        LeanTween.color((RectTransform) levels[level - 1].transform, unlockedColor, 0.25f)
-            .setEase(LeanTweenType.easeInOutSine);
-        yield return new WaitForSeconds(0.25f);
-        LeanTween.color((RectTransform)transitions[level - 1].transform, lastUnlockedColor, 0.25f).setEase(LeanTweenType.easeInSine);
-        levels[level].AnimateOutLockedItems(unlockedTextColor);
-        yield return new WaitForSeconds(0.25f);
-        LeanTween.scale(levels[level].gameObject, Vector3.one * 1.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
-        LeanTween.color((RectTransform)levels[level].transform, lastUnlockedColor, 0.25f)
+
+        LeanTween.scale(levelsToUse[newLevel].gameObject, Vector3.one * 1.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.color((RectTransform)levelsToUse[newLevel].transform, lastUnlockedColor, 0.25f)
             .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
         yield return new WaitForSeconds(0.25f);
-        levels[level + 1].AnimateInLockPanel();
+        if (newLevel < 7)
+        {
+            levelsToUse[newLevel + 1].AnimateInLockPanel();
+            yield return new WaitForSeconds(0.25f);
+            levelsToUse[newLevel + 1].Init(level + 1, false, false, true, lockedColor, lockedTextColor);
+        }
+        else if (newLevel >= 1)
+        {
+            levelsToUse[newLevel - 1].Init(level - 1, true, false, false, unlockedColor, unlockedTextColor);
+        }
+        levelsToUse[newLevel].Init(level, true, true, false, lastUnlockedColor, unlockedTextColor);
+
+
+        if (newLevel >= 2)
+            transitionsToUse[newLevel - 1].Init(unlockedColor);
+
+        transitionsToUse[newLevel].Init(lastUnlockedColor);
         yield return new WaitForSeconds(0.25f);
-        levels[level - 1].Init(level - 1, true, false, false, unlockedColor, unlockedTextColor);
-        transitions[level - 2].Init(unlockedColor);
-        levels[level].Init(level, true, true, false, lastUnlockedColor, unlockedTextColor);
-        transitions[level - 1].Init(lastUnlockedColor);
-        levels[level + 1].Init(level + 1, false, false, true, lockedColor, lockedTextColor);
+        levelsToUse[newLevel].IsAnimating = false;
+
     }
 
     public IEnumerator AnimateIn()

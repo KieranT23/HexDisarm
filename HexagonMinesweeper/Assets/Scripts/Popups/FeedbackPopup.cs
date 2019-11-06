@@ -40,7 +40,9 @@ public class FeedbackPopup : PopupBase
     private void Feedback()
     {
         AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Emailed);
+#if UNITY_ANDROID
         PlayerInfoManager.Instance.HasProvidedFeedback = true;
+#endif
         string bodyFill = "Android version: " + SystemInfo.operatingSystem + Environment.NewLine +
                       "Device model: " + SystemInfo.deviceModel + Environment.NewLine +
                       "App Version: " + Application.version;
@@ -55,7 +57,9 @@ public class FeedbackPopup : PopupBase
     private void Review()
     {
         AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Reviewed);
+#if UNITY_ANDROID
         PlayerInfoManager.Instance.HasProvidedFeedback = true;
+#endif
         Application.OpenURL("https://play.google.com/store/apps/details?id=uk.KieranTownley.HexDisarm");
         AnimateOut();
     }

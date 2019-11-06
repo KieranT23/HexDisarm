@@ -113,10 +113,10 @@ public class GridGenerator3D : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        /*if (Input.GetKeyDown(KeyCode.R))
         {
             ResetGrid();
-        }
+        }*/
     }
 
 #endregion
@@ -176,6 +176,8 @@ public class GridGenerator3D : MonoBehaviour
         }
 
         SetGridScale(levelInfo[0]);
+        if (GameManager.Instance.CurrentLevel == 5 && !GameManager.Instance.IsRandomLevel)
+            hexContent.transform.eulerAngles = new Vector3(0f, -90f, 75f);
         IsGeneratingGrid = true;
         /*if (hasGeneratedBefore)
         {
@@ -219,10 +221,10 @@ public class GridGenerator3D : MonoBehaviour
 
     public void ResetGrid()
     {
-        foreach (GridTile3D tile in gridTiles)
+        /*foreach (GridTile3D tile in gridTiles)
             tile.ResetTile();
 
-        StartCoroutine(WaitBeforeNeighbours());
+        StartCoroutine(WaitBeforeNeighbours());*/
     }
 
     public void DestroyGrid()
@@ -259,7 +261,8 @@ public class GridGenerator3D : MonoBehaviour
     public IEnumerator AnimateInGrid()
     {
         /*hexContent.transform.position = new Vector3(150f, -187f, 20.24f);*/
-        LeanTween.move(hexContent.gameObject, new Vector3(0f, -30f, 170f), 0.5f).setEase(LeanTweenType.easeOutQuint);
+        float valueToMoveTo = (GameManager.Instance.CurrentLevel == 5 || GameManager.Instance.CurrentLevel == 2) && !GameManager.Instance.IsRandomLevel ? -20f : -30f;
+        LeanTween.move(hexContent.gameObject, new Vector3(0f, valueToMoveTo, 170f), 0.5f).setEase(LeanTweenType.easeOutQuint);
         for (int i = 0; i < gridTiles.Count; i++)
         {
             if (i == 1 || i == 7 || i == 19 || i == 37 || i == 61 || i == 91 || i == 127)
@@ -347,6 +350,7 @@ public class GridGenerator3D : MonoBehaviour
             else if (level == 5)
             {
                 SetGridScale(5);
+                hexContent.transform.eulerAngles = new Vector3(0f, -90f, 75f);
                 UIController.Instance.ShowTutorialTip(2);
             }
         }
@@ -354,7 +358,7 @@ public class GridGenerator3D : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-
+        instantiatedBombs = new List<GridTile3D>();
         int bombsShown = 0;
         for (int b = 0; b < gridTiles.Count; b++)
         {
@@ -410,6 +414,15 @@ public class GridGenerator3D : MonoBehaviour
                 break;
         }
 
+
+        if (radius == 2 || radius == 3)
+        {
+            hexContent.transform.eulerAngles = new Vector3(0f, -90f, 75f);
+        }
+        else
+        {
+            hexContent.transform.eulerAngles = new Vector3(0f, -90f, 65f);
+        }
         hexContent.localScale = Vector3.one * scale;
     }
 
@@ -449,7 +462,7 @@ public class GridGenerator3D : MonoBehaviour
 
         LeanTween.moveY(background.gameObject, -600f, 1f).setEase(LeanTweenType.easeInOutQuint).setOnComplete(() =>
         {
-            background.position = new Vector3(0f, 0f, 100f);
+            background.position = new Vector3(0f, -30f, 100f);
             SetBackgroundColours(true, false);
         });
     }
