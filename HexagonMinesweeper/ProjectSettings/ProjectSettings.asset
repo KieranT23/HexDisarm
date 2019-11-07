@@ -163,7 +163,7 @@ PlayerSettings:
     Android: uk.KieranTownley.HexDisarm
     iPhone: uk.KieranTownley.HexDisarm
   buildNumber: {}
-  AndroidBundleVersionCode: 23
+  AndroidBundleVersionCode: 25
   AndroidMinSdkVersion: 16
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1

@@ -200,7 +200,7 @@ public class LevelSelection : MonoBehaviour
         if (level == 0)
             level = amountOfLevelsUnlocked;
 
-        float valueToRound = level / 8;
+        float valueToRound = (level - 1) / 8;
         int levelGroup = (int)Math.Floor(valueToRound);
         if (useLevelGroup)
             levelGroup = currentLevelGroup;
