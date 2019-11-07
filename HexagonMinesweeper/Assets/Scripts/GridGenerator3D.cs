@@ -611,10 +611,7 @@ public class GridGenerator3D : MonoBehaviour
         }
 
         if (radius >= 2)
-        {
             unusedTiles[0].transform.parent = hexContent;
-            gridTiles.Add(unusedTiles[0]);
-        }
     }
 
     public IEnumerator AnimateGridIntoView()
