@@ -372,14 +372,11 @@ public class GridTile3D : MonoBehaviour
         if (HasFlipped)
             return;
 
-        if (storedColor == warningColor)
+        if (!IsBomb)
             iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactLight);
-        else if (storedColor == dangerousColor)
-            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactMedium);
-        else if (storedColor == alertColor || storedColor == multiAlertColor || storedColor == threeBombColor)
-            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactHeavy);
-        else if (IsBomb)
+        else
             iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Failure);
+            
 
         if (storedColor == Color.clear)
             storedColor = safeColor;
@@ -452,7 +449,7 @@ public class GridTile3D : MonoBehaviour
         GridGenerator3D.Instance.IsAnimating = true;
         hasAnimatedDisarm = true;
         yield return new WaitForSeconds(1f);
-        iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Success);
+        
 
         Dictionary<int, List<List<GridTile3D>>> neighboursToLoop = new Dictionary<int, List<List<GridTile3D>>>();
         List<List<GridTile3D>> tiles = new List<List<GridTile3D>>();
@@ -463,6 +460,10 @@ public class GridTile3D : MonoBehaviour
 
         int amountOfTimes = isEnd ? 14 : 3;
         List<GridTile3D> animatedTiles = new List<GridTile3D>();
+        if (isEnd)
+            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Success);
+        else
+            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactHeavy);
 
         if (isEnd)
         {
