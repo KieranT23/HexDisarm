@@ -62,7 +62,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\iPhoneX-Overlay\Editor\IPhoneXOverlayEditor.cs" />
     <Compile Include="Assets\LeanTween\Editor\LeanTweenDocumentationEditor.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/D Drive Docs/UniFinalYear/Indie/HexDisarmGit/HexDisarm/HexagonMinesweeper/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

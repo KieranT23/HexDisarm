@@ -65,13 +65,6 @@
     <Compile Include="Assets\iOSHapticFeedback\Scripts\iOSHapticFeedback.cs" />
     <Compile Include="Assets\iOSHapticFeedback\Scripts\iOSHapticFeedbackAdvanced.cs" />
     <Compile Include="Assets\iOSHapticFeedback\Scripts\iOSHapticFeedbackExample.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\CanvasHelper.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\Scripts\CanvasComponents\IPhoneXOverlayLandscapeComponent.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\Scripts\CanvasComponents\IPhoneXOverlayPortraitComponent.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\Scripts\ColorComponents\IPhoneXOverlayDangerComponent.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\Scripts\ColorComponents\IPhoneXOverlayFrameComponent.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\Scripts\ColorComponents\IPhoneXOverlaySafeComponent.cs" />
-    <Compile Include="Assets\iPhoneX-Overlay\Scripts\IPhoneXOverlay.cs" />
     <Compile Include="Assets\Scripts\AdManager.cs" />
     <Compile Include="Assets\Scripts\AnalyticsManager.cs" />
     <Compile Include="Assets\Scripts\AudioManager.cs" />
@@ -79,9 +72,7 @@
     <Compile Include="Assets\Scripts\ColourManager.cs" />
     <Compile Include="Assets\Scripts\Confetti.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\GridGenerator.cs" />
     <Compile Include="Assets\Scripts\GridGenerator3D.cs" />
-    <Compile Include="Assets\Scripts\GridTile.cs" />
     <Compile Include="Assets\Scripts\GridTile3D.cs" />
     <Compile Include="Assets\Scripts\Levels.cs" />
     <Compile Include="Assets\Scripts\PlayerInfoManager.cs" />
