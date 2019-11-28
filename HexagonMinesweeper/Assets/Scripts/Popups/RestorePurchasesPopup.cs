@@ -5,11 +5,19 @@ using UnityEngine.UI;
 
 public class RestorePurchasesPopup : PopupBase
 {
-    [SerializeField] private Button btn_okay;
+    #region Variables
+    /// <summary>
+    /// The button to close the popup
+    /// </summary>
+    [SerializeField]
+    private Button btn_okay;
+    #endregion
 
+    #region Methods
     protected override void Start()
     {
         base.Start();
         btn_okay.onClick.AddListener(AnimateOut);
     }
+    #endregion
 }

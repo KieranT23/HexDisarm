@@ -5,12 +5,27 @@ using UnityEngine.UI;
 
 public class DataCollectionPopup : PopupBase
 {
-    [SerializeField] private Button btn_return;
+    #region Variables
+    /// <summary>
+    /// The return button on the popup
+    /// </summary>
+    [SerializeField]
+    private Button btn_return;
 
-    [SerializeField] private Button btn_privacyPolicy;
+    /// <summary>
+    /// The privacy policy button on the popup
+    /// </summary>
+    [SerializeField]
+    private Button btn_privacyPolicy;
 
-    [SerializeField] private Toggle tgl_dataCollection;
-
+    /// <summary>
+    /// The data collection toggle on the popup
+    /// </summary>
+    [SerializeField]
+    private Toggle tgl_dataCollection;
+    #endregion
+    #region Methods
+    #region Unity
     protected override void Start()
     {
         base.Start();
@@ -23,18 +38,30 @@ public class DataCollectionPopup : PopupBase
     {
         if (PlayerInfoManager.Instance == null)
             return;
+
         tgl_dataCollection.isOn = !PlayerInfoManager.Instance.HasDisabledAnalytics;
         ToggleDataCollection(PlayerInfoManager.Instance.HasDisabledAnalytics);
     }
+    #endregion
+    #region Private
 
+    /// <summary>
+    /// Open the privacy policy URL
+    /// </summary>
     private void OpenPrivacyPolicy()
     {
         Application.OpenURL("https://kierantownley.com/privacy-policy/");
     }
 
+    /// <summary>
+    /// Toggle data collection settings
+    /// </summary>
+    /// <param name="value">True if analytics are disabled</param>
     private void ToggleDataCollection(bool value)
     {
         PlayerInfoManager.Instance.HasDisabledAnalytics = value;
         AnalyticsManager.Instance.SetDisableAnalytics(value);
     }
+    #endregion
+    #endregion
 }

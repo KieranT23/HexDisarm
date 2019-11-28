@@ -7,18 +7,46 @@ using UnityEngine.UI;
 
 public class FeedbackPopup : PopupBase
 {
-    [SerializeField] private Button btn_feedback;
+    #region Variables
+    /// <summary>
+    /// The feedback button
+    /// </summary>
+    [SerializeField]
+    private Button btn_feedback;
 
-    [SerializeField] private Button btn_reviewUs;
+    /// <summary>
+    /// The review us button
+    /// </summary>
+    [SerializeField]
+    private Button btn_reviewUs;
 
-    [SerializeField] private Button btn_maybeLater;
+    /// <summary>
+    /// The maybe later button
+    /// </summary>
+    [SerializeField]
+    private Button btn_maybeLater;
 
-    [SerializeField] private Image storeIcon;
+    /// <summary>
+    /// The icon that is used to indicate which store the user will be taken to
+    /// </summary>
+    [SerializeField]
+    private Image storeIcon;
 
-    [SerializeField] private Sprite androidStore;
+    /// <summary>
+    /// The icon that will be used on android devices
+    /// </summary>
+    [SerializeField]
+    private Sprite androidStore;
 
-    [SerializeField] private Sprite iosStore;
+    /// <summary>
+    /// The icon that will be used on iOS devices
+    /// </summary>
+    [SerializeField]
+    private Sprite iosStore;
+    #endregion
 
+    #region Methods
+    #region Unity
     protected override void Start()
     {
         base.Start();
@@ -36,7 +64,11 @@ public class FeedbackPopup : PopupBase
         storeIcon.sprite = iosStore;
 #endif
     }
-
+    #endregion
+    #region Private
+    /// <summary>
+    /// Open the feedback email and prefill some details about the device
+    /// </summary>
     private void Feedback()
     {
         AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Emailed);
@@ -53,7 +85,9 @@ public class FeedbackPopup : PopupBase
         Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}", email, subject, body));
         AnimateOut();
     }
-
+    /// <summary>
+    /// Open the store page for this device to enable the user to review the application
+    /// </summary>
     private void Review()
     {
         AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Reviewed);
@@ -66,4 +100,6 @@ public class FeedbackPopup : PopupBase
 
         AnimateOut();
     }
+    #endregion
+    #endregion
 }

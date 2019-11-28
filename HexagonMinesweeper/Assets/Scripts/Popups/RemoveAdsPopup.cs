@@ -5,10 +5,21 @@ using UnityEngine.UI;
 
 public class RemoveAdsPopup : PopupBase
 {
-    [SerializeField] private Button btn_yes;
+    #region Variables
+    /// <summary>
+    /// The button to remove ads
+    /// </summary>
+    [SerializeField]
+    private Button btn_yes;
 
-    [SerializeField] private Button btn_cancel;
+    /// <summary>
+    /// The button to close the popup
+    /// </summary>
+    [SerializeField]
+    private Button btn_cancel;
+    #endregion
 
+    #region Methods
     protected override void Start()
     {
         base.Start();
@@ -16,14 +27,21 @@ public class RemoveAdsPopup : PopupBase
         btn_cancel.onClick.AddListener(Cancel);
     }
 
+    /// <summary>
+    /// Animate the popup out and invoke the success callback
+    /// </summary>
     private void Yes()
     {
         AnimateOut();
         successCallback?.Invoke();
     }
 
+    /// <summary>
+    /// Close the popup
+    /// </summary>
     private void Cancel()
     {
         AnimateOut();
     }
+    #endregion
 }

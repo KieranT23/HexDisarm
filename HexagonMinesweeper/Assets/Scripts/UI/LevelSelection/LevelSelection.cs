@@ -85,25 +85,11 @@ public class LevelSelection : MonoBehaviour
     private void Start()
     {
         unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
-        /*for (int i = 0; i < Levels.AllLevels.Count; i++)
-        {
-            CreateLevel();
-        }*/
 
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateLevelSelectToStartScreen()));
 
         canvasGroup = GetComponent<CanvasGroup>();
         SetupLevelSelect();
-        upButton.onClick.AddListener(() =>
-        {
-            
-        });
-
-        downButton.onClick.AddListener(() =>
-        {
-            
-        });
-        //scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
     }
 
     private void OnEnable()
