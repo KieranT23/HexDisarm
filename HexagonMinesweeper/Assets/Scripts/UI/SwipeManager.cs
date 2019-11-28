@@ -4,26 +4,62 @@ using UnityEngine;
 using System;
 using UnityEngine.Events;
 
-/// <summary>
-/// SwipeManager - found here: https://stackoverflow.com/questions/41491765/detect-swipe-gesture-direction
-/// </summary>
 public class SwipeManager : MonoBehaviour
 {
+    #region Variables
+    #region Static
+    /// <summary>
+    /// The static instance of this script
+    /// </summary>
     public static SwipeManager Instance;
-
-    private float swipeThreshold = 50f;
-    private float timeThreshold = 0.3f;
-
+    #endregion
+    #region Public
+    /// <summary>
+    /// The event to invoke when a swipe left has occured
+    /// </summary>
     public UnityEvent OnSwipeLeft;
+    /// <summary>
+    /// The event to invoke when a swipe right has occured
+    /// </summary>
     public UnityEvent OnSwipeRight;
+    /// <summary>
+    /// The event to invoke when a swipe up has occured
+    /// </summary>
     public UnityEvent OnSwipeUp;
+    /// <summary>
+    /// The event to invoke when a swipe down has occured
+    /// </summary>
     public UnityEvent OnSwipeDown;
-
+    #endregion
+    #region Private
+    /// <summary>
+    /// The threshold in which a swipe is registered
+    /// </summary>
+    private float swipeThreshold = 50f;
+    /// <summary>
+    /// The amount of time the user must be swiping for before it is registered
+    /// </summary>
+    private float timeThreshold = 0.3f;
+    /// <summary>
+    /// The finger down position
+    /// </summary>
     private Vector2 fingerDown;
+    /// <summary>
+    /// The time in which a finger went down
+    /// </summary>
     private DateTime fingerDownTime;
+    /// <summary>
+    /// The finger up position
+    /// </summary>
     private Vector2 fingerUp;
+    /// <summary>
+    /// The finger up time
+    /// </summary>
     private DateTime fingerUpTime;
+    #endregion
+    #endregion
 
+    #region Methods
     private void Awake()
     {
         if (Instance == null)
@@ -31,11 +67,13 @@ public class SwipeManager : MonoBehaviour
         else
             Destroy(this);
 
+        //Make sure the swipe manager is only used on the level selection
         gameObject.SetActive(false);
     }
 
     private void Update()
     {
+        //Check whether a swipe is occuring
 #if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
@@ -67,10 +105,14 @@ public class SwipeManager : MonoBehaviour
         }
 #endif
     }
-
+    
+    /// <summary>
+    /// Check which directing the user is swiping
+    /// </summary>
     private void CheckSwipe()
     {
         float duration = (float)fingerUpTime.Subtract(fingerDownTime).TotalSeconds;
+
         if (duration > timeThreshold)
             return;
 
@@ -102,4 +144,5 @@ public class SwipeManager : MonoBehaviour
 
         fingerUp = fingerDown;
     }
+    #endregion
 }

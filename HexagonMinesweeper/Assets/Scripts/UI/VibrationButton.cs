@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class VibrationButton : SettingsButton
 {
+    #region Methods
     protected override void Start()
     {
         base.Start();
@@ -11,6 +12,9 @@ public class VibrationButton : SettingsButton
         SetButtonState(isOn);
     }
 
+    /// <summary>
+    /// Toggle the currently active state of the button
+    /// </summary>
     protected override void ToggleState()
     {
         base.ToggleState();
@@ -18,9 +22,13 @@ public class VibrationButton : SettingsButton
         iOSHapticFeedback.Instance.ToggleVibration(isOn);
     }
 
+    /// <summary>
+    /// Initialise the vibration button
+    /// </summary>
     public void Init()
     {
         isOn = PlayerInfoManager.Instance.VibrationOn;
         SetButtonState(isOn);
     }
+    #endregion
 }

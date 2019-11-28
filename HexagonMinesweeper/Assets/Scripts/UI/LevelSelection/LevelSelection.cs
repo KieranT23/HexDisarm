@@ -8,68 +8,108 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class LevelSelection : MonoBehaviour
 {
+    #region Variables
+    #region Static
     public static LevelSelection Instance;
+    #endregion
 
-    [SerializeField] private Level levelPrefab;
-
-    [SerializeField] private Transition transitionPrefab;
-
-    private Dictionary<int, Level> levels = new Dictionary<int, Level>();
-
-    private Dictionary<int, Transition> transitions = new Dictionary<int, Transition>();
-
-    private int createdLevels = 0;
-
-    [SerializeField] private RectTransform scrollContent;
-
-    [SerializeField] private Color unlockedColor;
-
-    [SerializeField] private Color lockedColor;
-
-    [SerializeField] private Color lastUnlockedColor;
-
-    [SerializeField] private Color lockedTextColor;
-
-    [SerializeField] private Color unlockedTextColor;
-
-    [SerializeField] private RectTransform levelsContent;
-
-    [SerializeField] private RectTransform transitionsContent;
-
-    [SerializeField] private RectTransform testObject;
-
-    private int unlockedLevels = 10;
-
-    [SerializeField] private RectTransform scrollRect;
-
-    [SerializeField] private RectTransform returnIcon;
-
-    [SerializeField] private Button btn_return;
-
-    [SerializeField] private RectTransform mainCanvas;
-
-    [SerializeField] private Level[] levelsToUse;
-
-    [SerializeField] private Transition[] transitionsToUse;
-
-    [SerializeField] private Button upButton;
-
-    [SerializeField] private Button downButton;
-
-    [SerializeField] private Scrollbar scrollbar;
-
+    #region Editor
+    /// <summary>
+    /// The level selection content
+    /// </summary>
+    [SerializeField]
+    private RectTransform scrollContent;
+    /// <summary>
+    /// The colour to use when a level is unlocked
+    /// </summary>
+    [SerializeField]
+    private Color unlockedColor;
+    /// <summary>
+    /// The colour to use when a level is locked
+    /// </summary>
+    [SerializeField]
+    private Color lockedColor;
+    /// <summary>
+    /// The colour to use when a level is the last unlocked
+    /// </summary>
+    [SerializeField]
+    private Color lastUnlockedColor;
+    /// <summary>
+    /// The colour to use for th text when a level is locked
+    /// </summary>
+    [SerializeField]
+    private Color lockedTextColor;
+    /// <summary>
+    /// The colour to use for the text when a level is unlocked
+    /// </summary>
+    [SerializeField]
+    private Color unlockedTextColor;
+    /// <summary>
+    /// The scroll rect content
+    /// </summary>
+    [SerializeField]
+    private RectTransform scrollRect;
+    /// <summary>
+    /// The return icon to close the level selection
+    /// </summary>
+    [SerializeField]
+    private RectTransform returnIcon;
+    /// <summary>
+    /// The button to return to the start screen
+    /// </summary>
+    [SerializeField]
+    private Button btn_return;
+    /// <summary>
+    /// The main canvas in the scene
+    /// </summary>
+    [SerializeField]
+    private RectTransform mainCanvas;
+    /// <summary>
+    /// All the level objects to use
+    /// </summary>
+    [SerializeField]
+    private Level[] levelsToUse;
+    /// <summary>
+    /// All the transitions to use
+    /// </summary>
+    [SerializeField]
+    private Transition[] transitionsToUse;
+    /// <summary>
+    /// The scroll bar
+    /// </summary>
+    [SerializeField]
+    private Scrollbar scrollbar;
+    #endregion
+    #region Private
+    /// <summary>
+    /// The canvas group that is attached to this object
+    /// </summary>
     private CanvasGroup canvasGroup;
-
+    /// <summary>
+    /// The level group that the level selection is currently on
+    /// </summary>
     private int currentLevelGroup = 1;
-
-    private Dictionary<Level, Vector2> LevelPositions = new Dictionary<Level, Vector2>();
-    private Dictionary<Level, Vector2> LevelReversedPostions = new Dictionary<Level, Vector2>();
+    /// <summary>
+    /// The position of all the transitions
+    /// </summary>
     private Dictionary<Transition, Vector2> transitionPositions = new Dictionary<Transition, Vector2>();
+    /// <summary>
+    /// The positions of all the transitions when they are reversed
+    /// </summary>
     private Dictionary<Transition, Vector2> transitionReversedPostions = new Dictionary<Transition, Vector2>();
-
+    /// <summary>
+    /// Flag for whether the level selection can be moved down
+    /// </summary>
     private bool canMoveDown;
+    /// <summary>
+    /// Flag for whether the level selection can be moved up
+    /// </summary>
     private bool canMoveUp;
+    #endregion
+    #endregion
 
+    #region Methods
+    #region Unity
     private void Awake()
     {
         if (Instance == null)
@@ -84,8 +124,6 @@ public class LevelSelection : MonoBehaviour
 
     private void Start()
     {
-        unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
-
         btn_return.onClick.AddListener(() => StartCoroutine(AnimateLevelSelectToStartScreen()));
 
         canvasGroup = GetComponent<CanvasGroup>();
@@ -94,6 +132,7 @@ public class LevelSelection : MonoBehaviour
 
     private void OnEnable()
     {
+        //Set listeners
         SwipeManager.Instance.gameObject.SetActive(true);
         SwipeManager.Instance.OnSwipeDown.RemoveAllListeners();
         SwipeManager.Instance.OnSwipeUp.RemoveAllListeners();
@@ -104,38 +143,49 @@ public class LevelSelection : MonoBehaviour
     private void OnDisable()
     {
         if (SwipeManager.Instance == null)
-        {
             return;
-        }
+
+        //Remove listeners to avoid null references
         SwipeManager.Instance.OnSwipeDown.RemoveListener(NavigateUp);
         SwipeManager.Instance.OnSwipeUp.RemoveListener(NavigateDown);
         SwipeManager.Instance.gameObject.SetActive(false);
     }
+    #endregion
 
+    #region Private
+    /// <summary>
+    /// Navigate to the next area of the level selection
+    /// </summary>
     private void NavigateUp()
     {
         if (!canMoveUp)
             return;
+
         currentLevelGroup++;
         if (currentLevelGroup > 25)
             currentLevelGroup = 25;
 
-        //SetupLevelSelect(0, true, false);
         StartCoroutine(AnimateToNextArea(true));
     }
 
+    /// <summary>
+    /// Navigate to the previous area of the level selection
+    /// </summary>
     private void NavigateDown()
     {
         if (!canMoveDown)
             return;
+
         currentLevelGroup--;
         if (currentLevelGroup < 0)
             currentLevelGroup = 0;
 
-        //SetupLevelSelect(0, true, false);
         StartCoroutine(AnimateToNextArea(false));
     }
 
+    /// <summary>
+    /// Set the positions of all the transitions
+    /// </summary>
     private void SetPositions()
     {
         foreach (Transition transition in transitionsToUse)
@@ -174,15 +224,230 @@ public class LevelSelection : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Animate in the level selection after it has been initialised
+    /// </summary>
+    /// <param name="reversed">Is animating in reverse?</param>
+    private IEnumerator AnimateInAfterInit(bool reversed = false)
+    {
+        float transitionTime = 0.05f;
+        float levelTime = 0.075f;
+
+        //Setup all the transitions to get the correct effect
+        foreach (Transition transition in transitionsToUse)
+        {
+            RectTransform rect = (RectTransform)transition.transform;
+            Vector2 position = rect.anchoredPosition;
+            if ((reversed && transitionReversedPostions.ContainsKey(transition)) || (!reversed && transitionPositions.ContainsKey(transition)))
+                position = reversed ? transitionReversedPostions[transition] : transitionPositions[transition];
+            rect.pivot = reversed ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(5f, 0f);
+
+        }
+
+        foreach (Level level in levelsToUse)
+            level.transform.localScale = Vector3.zero;
+
+        yield return null;
+
+        int transitionsUsed = reversed ? 8 : 0;
+        int levelsUsed = reversed ? 7 : 0;
+
+        //Animate in the level selection
+        for (int i = 0; i < 17; i++)
+        {
+            //Do not animate the start and end in certain circumstances
+            if (i == 0 && !reversed && currentLevelGroup == 0)
+                continue;
+            else if (i == 0 && reversed && currentLevelGroup >= 24)
+                continue;
+            else if (i == 16 && reversed && currentLevelGroup == 0)
+                continue;
+            else if (i == 16 && !reversed && currentLevelGroup >= 24)
+                continue;
+
+            int iValue = i;
+            if (reversed)
+                iValue = 16 - i;
+
+            if (iValue % 2 == 0)
+            {
+                //Animate in the transition to create the effect of drawing lines between each level
+                float valueToAnimateTo = 200;
+
+                if (i == 0 || i == 16)
+                    valueToAnimateTo = 2000;
+
+                RectTransform transitionRect = (RectTransform)transitionsToUse[transitionsUsed].transform;
+                LeanTween.value(transitionRect.gameObject, 0f, valueToAnimateTo, transitionTime).setEase(LeanTweenType.easeOutSine)
+                    .setOnUpdate(
+                        (float value) => { transitionRect.sizeDelta = new Vector2(5f, value); });
+
+                if (reversed)
+                    transitionsUsed--;
+                else
+                    transitionsUsed++;
+
+                yield return new WaitForSeconds(transitionTime);
+
+            }
+            else
+            {
+                //Animate in the levels
+                LeanTween.scale(levelsToUse[levelsUsed].gameObject, Vector3.one, levelTime).setEase(LeanTweenType.easeOutBack);
+
+                if (reversed)
+                    levelsUsed--;
+                else
+                    levelsUsed++;
+
+                yield return new WaitForSeconds(levelTime);
+            }
+        }
+
+        canMoveUp = currentLevelGroup < 24;
+        canMoveDown = currentLevelGroup > 0;
+        canvasGroup.blocksRaycasts = true;
+    }
+
+    /// <summary>
+    /// Animate to the next area of the level selection
+    /// </summary>
+    /// <param name="nextGroup">Is going to the next group?</param>
+    private IEnumerator AnimateToNextArea(bool nextGroup)
+    {
+        canMoveUp = false;
+        canMoveDown = false;
+        Vector2 pos = scrollContent.anchoredPosition;
+
+        //Animate out of view
+        LeanTween.value(scrollContent.gameObject, scrollContent.anchoredPosition.y,
+                nextGroup ? -mainCanvas.sizeDelta.y : mainCanvas.sizeDelta.y, 0.15f).setEase(LeanTweenType.easeInSine)
+            .setOnUpdate(
+                (float value) =>
+                {
+                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, value);
+                });
+
+        yield return new WaitForSeconds(0.25f);
+
+        //Animate the level selection into view
+        SetupLevelSelect(0, true, false);
+        scrollContent.anchoredPosition = pos;
+        StartCoroutine(AnimateInAfterInit(!nextGroup));
+    }
+
+    /// <summary>
+    /// Do the animation when a level is unlocked
+    /// </summary>
+    /// <param name="level">The level to unlock</param>
+    private IEnumerator AnimateUnlockLevel(int level)
+    {
+        //The level to unlock
+        int newLevel = (level - (currentLevelGroup * 8)) - 1;
+        levelsToUse[newLevel].IsAnimating = true;
+
+        //Animate the transition before the previous level
+        if (newLevel >= 1)
+        {
+            LeanTween.color((RectTransform)transitionsToUse[newLevel - 1].transform, unlockedColor, 0.25f).setEase(LeanTweenType.easeInSine);
+
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        //Animate the previous level
+        if (newLevel >= 1)
+        {
+            LeanTween.scale(levelsToUse[newLevel - 1].gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeInOutSine);
+            LeanTween.color((RectTransform)levelsToUse[newLevel - 1].transform, unlockedColor, 0.25f)
+                .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        //Animate the current level
+        LeanTween.color((RectTransform)transitionsToUse[newLevel].transform, lastUnlockedColor, 0.25f).setEase(LeanTweenType.easeInSine).setRecursive(false);
+        levelsToUse[newLevel].AnimateOutLockedItems(unlockedTextColor);
+
+        yield return new WaitForSeconds(0.25f);
+        
+        //Animate the current level
+        LeanTween.scale(levelsToUse[newLevel].gameObject, Vector3.one * 1.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
+        LeanTween.color((RectTransform)levelsToUse[newLevel].transform, lastUnlockedColor, 0.25f)
+            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
+
+        yield return new WaitForSeconds(0.25f);
+
+        //Animate the next level
+        if (newLevel < 7)
+        {
+            levelsToUse[newLevel + 1].AnimateInLockPanel();
+
+            yield return new WaitForSeconds(0.25f);
+
+            levelsToUse[newLevel + 1].Init(level + 1, false, false, true, lockedColor, lockedTextColor);
+        }
+        else if (newLevel >= 1)
+        {
+            levelsToUse[newLevel - 1].Init(level - 1, true, false, false, unlockedColor, unlockedTextColor);
+        }
+        levelsToUse[newLevel].Init(level, true, true, false, lastUnlockedColor, unlockedTextColor);
+
+
+        if (newLevel >= 2)
+            transitionsToUse[newLevel - 1].Init(unlockedColor);
+
+        transitionsToUse[newLevel].Init(lastUnlockedColor);
+
+        yield return new WaitForSeconds(0.25f);
+
+        levelsToUse[newLevel].IsAnimating = false;
+
+    }
+
+    /// <summary>
+    /// Animate level selection to start screen
+    /// </summary>
+    private IEnumerator AnimateLevelSelectToStartScreen()
+    {
+        canvasGroup.blocksRaycasts = false;
+        float screenHeight = mainCanvas.sizeDelta.y;
+        float testObjectPos = -scrollContent.anchoredPosition.y;
+        float movementAmount = -screenHeight;
+
+        LeanTween.scale(returnIcon, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
+        LeanTween.value(gameObject, 0f, movementAmount, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+            (float value) =>
+            {
+                scrollContent.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, value);
+            });
+
+        yield return new WaitForSeconds(0.15f);
+
+        scrollContent.anchoredPosition = Vector2.zero;
+        returnIcon.localScale = Vector3.one;
+        StartScreen.Instance.gameObject.SetActive(true);
+        StartCoroutine(StartScreen.Instance.AnimateFromLevelSelect());
+    }
+    #endregion
+
+    #region Public
+    /// <summary>
+    /// Setup the level selection for the provided level group
+    /// </summary>
+    /// <param name="level">The level to show</param>
+    /// <param name="useLevelGroup">Should the current level group be used?</param>
+    /// <param name="animate">Animate the level selection into view</param>
     public void SetupLevelSelect(int level = 0, bool useLevelGroup = false, bool animate = true)
     {
-        
         canMoveUp = false;
         canMoveDown = false;
         returnIcon.localScale = Vector3.one;
 
         int amountOfLevelsUnlocked = PlayerInfoManager.Instance.LevelsUnlocked;
 
+        //Get the correct level group
         if (level == 0)
             level = amountOfLevelsUnlocked;
 
@@ -193,10 +458,12 @@ public class LevelSelection : MonoBehaviour
         int startingValue = levelGroup * 8;
         currentLevelGroup = levelGroup;
 
+        //Set the scrollbar to make it look like it is a scroll view
         scrollbar.value = (0.04f * currentLevelGroup);
 
         Color colorToSet;
 
+        //Setup all levels and transitions
         for (int i = 0; i < 9; i++)
         {
             int value = startingValue + i + 1;
@@ -220,219 +487,10 @@ public class LevelSelection : MonoBehaviour
             StartCoroutine(AnimateInAfterInit());
     }
 
-    private IEnumerator AnimateInAfterInit(bool reversed = false)
-    {
-        float transitionTime = 0.05f;
-        float levelTime = 0.075f;
-        float delay = 0.05f;
-
-        foreach (Transition transition in transitionsToUse)
-        {
-            RectTransform rect = (RectTransform)transition.transform;
-            Vector2 position = rect.anchoredPosition;
-            if ((reversed && transitionReversedPostions.ContainsKey(transition)) || (!reversed && transitionPositions.ContainsKey(transition)))
-                position = reversed ? transitionReversedPostions[transition] : transitionPositions[transition];
-            rect.pivot = reversed ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0f);
-            rect.anchoredPosition = position;
-            rect.sizeDelta = new Vector2(5f, 0f);
-
-        }
-            
-        foreach (Level level in levelsToUse)
-            level.transform.localScale = Vector3.zero;
-        yield return null;
-        int transitionsUsed = reversed ? 8 : 0;
-        int levelsUsed = reversed ? 7 : 0;
-        for (int i = 0; i < 17; i++)
-        {
-            if (i == 0 && !reversed && currentLevelGroup == 0)
-                continue;
-            else if (i == 0 && reversed && currentLevelGroup >= 24)
-                continue;
-            else if (i == 16 && reversed && currentLevelGroup == 0)
-                continue;
-            else if (i == 16 && !reversed && currentLevelGroup >= 24)
-                continue;
-
-            int iValue = i;
-            if (reversed)
-            {
-                iValue = 16 - i;
-            }
-            
-            if (iValue % 2 == 0)
-            {
-                float valueToAnimateTo = 200;
-                if (i == 0 || i == 16)
-                    valueToAnimateTo = 2000;
-                RectTransform transitionRect = (RectTransform) transitionsToUse[transitionsUsed].transform;
-                LeanTween.value(transitionRect.gameObject, 0f, valueToAnimateTo, transitionTime).setEase(LeanTweenType.easeOutSine)
-                    .setOnUpdate(
-                        (float value) => { transitionRect.sizeDelta = new Vector2(5f, value); });
-                if (reversed)
-                    transitionsUsed--;
-                else
-                    transitionsUsed++;
-                yield return new WaitForSeconds(transitionTime);
-
-            }
-            else
-            {
-                LeanTween.scale(levelsToUse[levelsUsed].gameObject, Vector3.one, levelTime).setEase(LeanTweenType.easeOutBack);
-                if (reversed)
-                    levelsUsed--;
-                else
-                    levelsUsed++;
-                yield return new WaitForSeconds(levelTime);
-            }
-        }
-
-        canMoveUp = currentLevelGroup < 24;
-        canMoveDown = currentLevelGroup > 0;
-        canvasGroup.blocksRaycasts = true;
-    }
-
-    private IEnumerator AnimateToNextArea(bool nextGroup)
-    {
-        canMoveUp = false;
-        canMoveDown = false;
-        Vector2 pos = scrollContent.anchoredPosition;
-        LeanTween.value(scrollContent.gameObject, scrollContent.anchoredPosition.y,
-                nextGroup ? -mainCanvas.sizeDelta.y : mainCanvas.sizeDelta.y, 0.15f).setEase(LeanTweenType.easeInSine)
-            .setOnUpdate(
-                (float value) =>
-                {
-                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, value);
-                });
-        yield return new WaitForSeconds(0.25f);
-        SetupLevelSelect(0, true, false);
-        scrollContent.anchoredPosition = pos;
-        StartCoroutine(AnimateInAfterInit(!nextGroup));
-    }
-
-    private void CreateLevel()
-    {
-        createdLevels++;
-        bool isUnlocked = createdLevels <= unlockedLevels;
-        bool isLastUnlockedLevel = createdLevels == unlockedLevels;
-        bool isNextLockedLevel = createdLevels == (unlockedLevels + 1);
-
-        int remainder = createdLevels % 4;
-        if (remainder == 0)
-            remainder += 4;
-        float xMovementAmount = 369;
-        float yMovementAmount = 211;
-
-        float xPos = 0f;
-
-        if (remainder % 2 != 0)
-            xPos = (remainder - 2) * xMovementAmount;
-
-        float yPos = (yMovementAmount * (createdLevels - 1)) + 200;
-        Vector3 levelPos = new Vector3(xPos, yPos, 0f);
-        Level instantiatedLevel = Instantiate(levelPrefab, levelsContent);
-        ((RectTransform) instantiatedLevel.transform).anchoredPosition = levelPos;
-
-        Color colorToSet;
-        if (isLastUnlockedLevel)
-            colorToSet = lastUnlockedColor;
-        else if (isUnlocked)
-            colorToSet = unlockedColor;
-        else
-            colorToSet = lockedColor;
-
-
-        instantiatedLevel.Init(createdLevels, isUnlocked, isLastUnlockedLevel, isNextLockedLevel, colorToSet, !isUnlocked ? lockedTextColor : unlockedTextColor);
-        levels.Add(createdLevels, instantiatedLevel);
-        scrollContent.sizeDelta = new Vector2(scrollContent.sizeDelta.x, (200 + (((RectTransform)levelPrefab.transform).sizeDelta.y / 2) + (yMovementAmount * (createdLevels - 1)) + 200));
-
-        if (isLastUnlockedLevel)
-            testObject.transform.position = instantiatedLevel.transform.position;
-
-        if (createdLevels == 1)
-            return;
-
-        float transitionXAmount = 184.7f;
-
-        int transitionRemainder = (createdLevels - 1) % 4;
-        if (transitionRemainder == 0)
-            transitionRemainder += 4;
-
-        float transitionPosX = 0;
-        float transitionPosY = (yMovementAmount * (createdLevels - 2)) + 304.9f;
-        float rotation = 0f;
-
-        float remainderMinusDivder = transitionRemainder - 2.5f;
-        if (remainderMinusDivder == 0.5f || remainderMinusDivder == -0.5f)
-            transitionPosX = transitionXAmount;
-        else
-            transitionPosX = -transitionXAmount;
-
-        if (remainderMinusDivder > 0)
-            rotation = 60f;
-        else
-            rotation = -60f;
-
-
-
-        Vector3 transitionPos = new Vector3(transitionPosX, transitionPosY, 0f);
-        Transition instantiatedTransition = Instantiate(transitionPrefab, transitionsContent);
-        RectTransform transitionRect = (RectTransform) instantiatedTransition.transform;
-        transitionRect.anchoredPosition = transitionPos;
-        transitionRect.eulerAngles = new Vector3(0f, 0f, rotation);
-        instantiatedTransition.Init(colorToSet);
-
-        transitions.Add(createdLevels - 1, instantiatedTransition);
-    }
-
-    public void Return()
-    {
-        scrollContent.anchoredPosition = new Vector2(0f, 0f);
-        createdLevels = 0;
-        unlockedLevels = PlayerInfoManager.Instance.LevelsUnlocked;
-
-        Level lastPlayedLevel = null;
-        for (int i = 0; i < levels.Count; i++)
-        {
-            createdLevels++;
-            bool isUnlocked = createdLevels <= unlockedLevels;
-            bool isLastUnlockedLevel = createdLevels == unlockedLevels;
-            bool isLastPlayedLevel = GameManager.Instance.CurrentLevel == createdLevels;
-            bool isNextLockedLevel = createdLevels == (unlockedLevels + 1);
-            if (isLastPlayedLevel)
-            {
-                testObject.transform.position = levels[createdLevels].transform.position;
-                lastPlayedLevel = levels[createdLevels];
-            }
-                
-
-            Color colorToSet;
-            if (isLastUnlockedLevel)
-                colorToSet = lastUnlockedColor;
-            else if (isUnlocked)
-                colorToSet = unlockedColor;
-            else
-                colorToSet = lockedColor;
-
-            levels[createdLevels].Init(createdLevels, isUnlocked, isLastUnlockedLevel, isNextLockedLevel, colorToSet, !isUnlocked ? lockedTextColor : unlockedTextColor);
-
-            if (createdLevels == 1)
-                continue;
-
-            transitions[createdLevels - 1].Init(colorToSet);
-        }
-
-        scrollContent.anchoredPosition = new Vector2(0f, -testObject.anchoredPosition.y);
-        gameObject.SetActive(true);
-        StartCoroutine(lastPlayedLevel.Return());
-    }
-
-    public void SetBlocksRaycast(bool blockRaycasts)
-    {
-        foreach (Level level in levels.Values)
-            level.GetComponent<GraphicRaycaster>().enabled = blockRaycasts;
-    }
-
+    /// <summary>
+    /// Unlock a level
+    /// </summary>
+    /// <param name="level">The level to unlock</param>
     public void UnlockLevel(int level)
     {
         AdManager.Instance.ShowRewardAd(true, () =>
@@ -442,101 +500,12 @@ public class LevelSelection : MonoBehaviour
             StartCoroutine(AnimateUnlockLevel(level));
         });
     }
-
-    private IEnumerator AnimateUnlockLevel(int level)
-    {
-        int newLevel = (level - (currentLevelGroup * 8)) - 1;
-        levelsToUse[newLevel].IsAnimating = true;
-
-        if (newLevel >= 1)
-        {
-            LeanTween.color((RectTransform)transitionsToUse[newLevel - 1].transform, unlockedColor, 0.25f).setEase(LeanTweenType.easeInSine);
-            yield return new WaitForSeconds(0.25f);
-        }
-
-        if (newLevel >= 1)
-        {
-            LeanTween.scale(levelsToUse[newLevel - 1].gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeInOutSine);
-            LeanTween.color((RectTransform)levelsToUse[newLevel - 1].transform, unlockedColor, 0.25f)
-                .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
-            yield return new WaitForSeconds(0.25f);
-        }
-
-        LeanTween.color((RectTransform)transitionsToUse[newLevel].transform, lastUnlockedColor, 0.25f).setEase(LeanTweenType.easeInSine).setRecursive(false);
-        levelsToUse[newLevel].AnimateOutLockedItems(unlockedTextColor);
-        yield return new WaitForSeconds(0.25f);
-
-        LeanTween.scale(levelsToUse[newLevel].gameObject, Vector3.one * 1.25f, 0.25f).setEase(LeanTweenType.easeInOutSine);
-        LeanTween.color((RectTransform)levelsToUse[newLevel].transform, lastUnlockedColor, 0.25f)
-            .setEase(LeanTweenType.easeInOutSine).setRecursive(false);
-        yield return new WaitForSeconds(0.25f);
-        if (newLevel < 7)
-        {
-            levelsToUse[newLevel + 1].AnimateInLockPanel();
-            yield return new WaitForSeconds(0.25f);
-            levelsToUse[newLevel + 1].Init(level + 1, false, false, true, lockedColor, lockedTextColor);
-        }
-        else if (newLevel >= 1)
-        {
-            levelsToUse[newLevel - 1].Init(level - 1, true, false, false, unlockedColor, unlockedTextColor);
-        }
-        levelsToUse[newLevel].Init(level, true, true, false, lastUnlockedColor, unlockedTextColor);
+    #endregion
+    #endregion
 
 
-        if (newLevel >= 2)
-            transitionsToUse[newLevel - 1].Init(unlockedColor);
 
-        transitionsToUse[newLevel].Init(lastUnlockedColor);
-        yield return new WaitForSeconds(0.25f);
-        levelsToUse[newLevel].IsAnimating = false;
 
-    }
 
-    public IEnumerator AnimateIn()
-    {
-        canvasGroup.blocksRaycasts = true;
-        float screenHeight = mainCanvas.sizeDelta.y;
-        scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight);
-        float testObjectPos = testObject.anchoredPosition.y;
-        if (testObjectPos < 0)
-            testObjectPos = 0;
-        float movementAmount = screenHeight + testObjectPos;
-
-        LeanTween.value(gameObject, 0f, movementAmount, 2f).setEase(LeanTweenType.easeInOutQuad).setOnUpdate(
-            (float value) =>
-            {
-                if (value <= screenHeight)
-                {
-                    scrollRect.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, screenHeight - value);
-                }
-                else
-                {
-                    scrollRect.anchoredPosition = Vector2.zero;
-                    scrollContent.anchoredPosition = new Vector2(scrollContent.anchoredPosition.x, screenHeight - value);
-                }
-            });
-
-        returnIcon.localScale = Vector3.zero;
-        LeanTween.scale(returnIcon, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
-        yield return null;
-    }
-
-    private IEnumerator AnimateLevelSelectToStartScreen()
-    {
-        canvasGroup.blocksRaycasts = false;
-        float screenHeight = mainCanvas.sizeDelta.y;
-        float testObjectPos = -scrollContent.anchoredPosition.y;
-        float movementAmount = -screenHeight;
-        LeanTween.scale(returnIcon, Vector3.zero, 0.25f).setEase(LeanTweenType.easeInSine);
-        LeanTween.value(gameObject, 0f, movementAmount, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
-            (float value) =>
-            {
-                    scrollContent.anchoredPosition = new Vector2(scrollRect.anchoredPosition.x, value);
-            });
-        yield return new WaitForSeconds(0.15f);
-        scrollContent.anchoredPosition = Vector2.zero;
-        returnIcon.localScale = Vector3.one;
-        StartScreen.Instance.gameObject.SetActive(true);
-        StartCoroutine(StartScreen.Instance.AnimateFromLevelSelect());
-    }
+    
 }
