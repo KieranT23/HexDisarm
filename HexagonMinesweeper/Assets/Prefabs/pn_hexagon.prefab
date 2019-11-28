@@ -89,13 +89,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca23aeb2c5d1746459c82d0bb2ea89a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bombColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
-  safeColor: {r: 0.12444089, g: 0.8113208, b: 0, a: 1}
-  warningColor: {r: 0.8584906, g: 0.84502405, b: 0, a: 1}
-  dangerousColor: {r: 1, g: 0.5820617, b: 0, a: 1}
-  alertColor: {r: 0.8679245, g: 0, b: 0, a: 1}
-  multiAlertColor: {r: 0.509434, g: 0, b: 0, a: 1}
-  threeBombColor: {r: 0, g: 0, b: 0, a: 1}
+  bombColor: {r: 0.9647059, g: 0.23921569, b: 0.5372549, a: 1}
+  safeColor: {r: 0.14509805, g: 0.0627451, b: 0.22352941, a: 1}
+  warningColor: {r: 0.2901961, g: 0.14901961, b: 0.32941177, a: 1}
+  dangerousColor: {r: 0.45882353, g: 0.17254902, b: 0.44313726, a: 1}
+  alertColor: {r: 0.8117647, g: 0.23921569, b: 0.5647059, a: 1}
+  multiAlertColor: {r: 0.9647059, g: 0.23921569, b: 0.5372549, a: 1}
+  threeBombColor: {r: 0.827451, g: 0.2, b: 0.49019608, a: 1}
   Neighbours: []
   Position: {x: 0, y: 0, z: 0}
   RemovedBombs: []
@@ -123,17 +123,20 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 7064859333613411161}

@@ -372,12 +372,7 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             GridGenerator.Instance.SetInteractability(false);
             StartCoroutine(AnimateBombExplosion());
-            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.LOSE);
             return;
-        }
-        else
-        {
-            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.FLIP);
         }
 
         if (Neighbours.Count == 0)
@@ -428,7 +423,6 @@ public class GridTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             Confetti.Instance.Play();
             StartCoroutine(UIController.Instance.ShowCompleteLevelText());
-            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.WIN);
             GridGenerator.Instance.SetBlocksRaycasts(false);
         }
             

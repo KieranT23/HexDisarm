@@ -33,8 +33,6 @@ public class StartScreen : MonoBehaviour
 
     [SerializeField] private GameObject settingsButtons;
 
-    [SerializeField] private Button btn_audio;
-
     [SerializeField] private Button btn_music;
 
     [SerializeField] private RectTransform returnIcon;
@@ -166,7 +164,6 @@ public class StartScreen : MonoBehaviour
         LevelSelection.Instance.gameObject.SetActive(false);
         canvasGroup.blocksRaycasts = false;
         Color colorToAnimateTo = GridGenerator3D.Instance.SetBackgroundColours(false, true);
-        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
 
         LeanTween.value(currentLevelBackground.gameObject, 312, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
             .setOnUpdate(
@@ -198,7 +195,6 @@ public class StartScreen : MonoBehaviour
     {
         gameObject.SetActive(true);
         btn_music.GetComponent<MusicButton>().Init();
-        btn_audio.GetComponent<AudioButton>().Init();
         btn_vibration.GetComponent<VibrationButton>().Init();
         menuButtons.SetActive(true);
         settingsButtons.SetActive(false);
@@ -282,10 +278,8 @@ public class StartScreen : MonoBehaviour
         returnIcon.localScale = Vector3.zero;
         LeanTween.scale(returnIcon, Vector3.one, 0.15f).setEase(LeanTweenType.easeOutBack);
         RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
-        RectTransform audioRect = (RectTransform)btn_audio.transform;
         RectTransform musicRect = (RectTransform)btn_music.transform;
         RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
-        audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, -50f);
         musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, -50f);
         dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, -50f);
         vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, -50f);
@@ -293,28 +287,19 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
-                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
 
-        LeanTween.value(btn_audio.gameObject, -200, -350, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
-            (float value) =>
-            {
-                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
-                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
-                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
-            });
-        yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_music.gameObject, -350, -500, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_music.gameObject, -200, -350, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.2f);
-        LeanTween.value(btn_vibration.gameObject, -500f, -650f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
+        LeanTween.value(btn_vibration.gameObject, -650f, -500f, 0.15f).setEase(LeanTweenType.easeOutBack).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
@@ -325,26 +310,17 @@ public class StartScreen : MonoBehaviour
     {
         settingsOpen = false;
         RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
-        RectTransform audioRect = (RectTransform)btn_audio.transform;
         RectTransform musicRect = (RectTransform)btn_music.transform;
         RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
-        LeanTween.value(btn_vibration.gameObject, -650, -500, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_vibration.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_music.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_music.gameObject, -350, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
-                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
-                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
-            });
-        yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_audio.gameObject, -350, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
-            (float value) =>
-            {
-                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
@@ -353,7 +329,6 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
-                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
@@ -423,27 +398,18 @@ public class StartScreen : MonoBehaviour
     private IEnumerator AnimateSettingsContinue()
     {
         settingsOpen = false;
-        RectTransform audioRect = (RectTransform)btn_audio.transform;
         RectTransform musicRect = (RectTransform)btn_music.transform;
         RectTransform dataRect = (RectTransform) btn_dataCollection.transform;
         RectTransform vibrationRect = (RectTransform) btn_vibration.transform;
-        LeanTween.value(btn_vibration.gameObject, -650, -500, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_vibration.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
         yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_music.gameObject, -500, -350, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
+        LeanTween.value(btn_music.gameObject, -350, -200, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
             (float value) =>
             {
-                musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
-                vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
-            });
-        yield return new WaitForSeconds(0.15f);
-        LeanTween.value(btn_audio.gameObject, -350f, -200f, 0.15f).setEase(LeanTweenType.easeInSine).setOnUpdate(
-            (float value) =>
-            {
-                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
@@ -452,7 +418,6 @@ public class StartScreen : MonoBehaviour
             (float value) =>
             {
                 dataRect.anchoredPosition = new Vector2(dataRect.anchoredPosition.x, value);
-                audioRect.anchoredPosition = new Vector2(audioRect.anchoredPosition.x, value);
                 musicRect.anchoredPosition = new Vector2(musicRect.anchoredPosition.x, value);
                 vibrationRect.anchoredPosition = new Vector2(vibrationRect.anchoredPosition.x, value);
             });
@@ -463,7 +428,6 @@ public class StartScreen : MonoBehaviour
     private IEnumerator AnimateOutRandomLevel(bool randomLevel)
     {
         canvasGroup.blocksRaycasts = false;
-        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
 
         LeanTween.value(randomLevelBackground.gameObject, 312, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
             .setOnUpdate(
@@ -556,7 +520,6 @@ public class StartScreen : MonoBehaviour
     private IEnumerator AnimateToLevelSelect()
     {
         canvasGroup.blocksRaycasts = false;
-        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
 
         LeanTween.value(selectLevelBackground.gameObject, 312, 4000, 0.35f).setEase(LeanTweenType.easeInSine)
             .setOnUpdate(
@@ -591,7 +554,6 @@ public class StartScreen : MonoBehaviour
     {
         gameObject.SetActive(true);
         btn_music.GetComponent<MusicButton>().Init();
-        btn_audio.GetComponent<AudioButton>().Init();
         btn_vibration.GetComponent<VibrationButton>().Init();
         LeanTween.color(selectLevelBackground, colorToAnimateRandomBackgroundFrom, 0.35f);
         LeanTween.value(selectLevelBackground.gameObject, 4000, 312, 0.35f).setEase(LeanTweenType.easeOutSine)

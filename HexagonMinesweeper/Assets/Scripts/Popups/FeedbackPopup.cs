@@ -59,8 +59,11 @@ public class FeedbackPopup : PopupBase
         AnalyticsManager.Instance.LogFeedbackAction(AnalyticsManager.FeedbackAction.Reviewed);
 #if UNITY_ANDROID
         PlayerInfoManager.Instance.HasProvidedFeedback = true;
-#endif
         Application.OpenURL("https://play.google.com/store/apps/details?id=uk.KieranTownley.HexDisarm");
+#elif UNITY_IOS
+        Application.OpenURL("https://apps.apple.com/us/app/hex-disarm/id1485861396");
+#endif
+
         AnimateOut();
     }
 }

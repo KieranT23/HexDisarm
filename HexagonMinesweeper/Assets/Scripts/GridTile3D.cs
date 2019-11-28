@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Material))]
 public class GridTile3D : MonoBehaviour
@@ -21,6 +22,10 @@ public class GridTile3D : MonoBehaviour
     [SerializeField] private Color multiAlertColor;
 
     [SerializeField] private Color threeBombColor;
+
+    [SerializeField] private GameObject bombCanvas;
+
+    [SerializeField] private Image bombImage;
     #endregion
     #region Public
     public List<GridTile3D> Neighbours;
@@ -77,6 +82,8 @@ public class GridTile3D : MonoBehaviour
     private bool wasFormerBomb;
 
     private Vector3 standardSize = new Vector3(100, 100, 1000);
+
+    private bool triggerNextTutorialStep;
     #endregion
     #endregion
 
@@ -146,8 +153,12 @@ public class GridTile3D : MonoBehaviour
         }
     }
 
-    public void SetBomb(bool show = false)
+    public void SetBomb(bool show = false, bool shouldTriggerNextTutorialStep = false)
     {
+        if (show)
+            bombCanvas.gameObject.SetActive(true);
+
+        triggerNextTutorialStep = shouldTriggerNextTutorialStep;
         storedColor = bombColor;
         if (show)
         {
@@ -173,6 +184,7 @@ public class GridTile3D : MonoBehaviour
 
             for (int a = 0; a < neighbour.Neighbours.Count; a++)
             {
+                
                 if (!tilesSet.Contains(neighbour.Neighbours[a]) && Neighbours[i].gameObject.activeInHierarchy)
                 {
                     neighbour.Neighbours[a].SetColor(1, this);
@@ -190,7 +202,7 @@ public class GridTile3D : MonoBehaviour
         }
     }
 
-    public void SetColor(int colorToSet, GridTile3D bomb)
+    public void SetColor(int colorToSet, GridTile3D bomb, bool flip = false)
     {
         if (IsBomb || colorIndex < colorToSet)
             return;
@@ -221,6 +233,9 @@ public class GridTile3D : MonoBehaviour
 
         if (HasFlipped)
             background.color = storedColor;
+
+        if (!HasFlipped && gameObject.activeInHierarchy)
+            GridGenerator3D.Instance.AddTileToList(this, colorToSet);
     }
 
     public void CheckForDisarm(bool hasTriggeredFromBomb = false)
@@ -260,6 +275,7 @@ public class GridTile3D : MonoBehaviour
             IsSafe = true;
             IsBomb = false;
             HasFlipped = true;
+            background.color = bombColor;
             /*button.interactable = false;
             background.raycastTarget = false;*/
             if (colours.Count != 0)
@@ -284,10 +300,11 @@ public class GridTile3D : MonoBehaviour
                         break;
                 }
 
-                background.color = storedColor;
+                //background.color = storedColor;
             }
             else
-                background.color = safeColor;
+                storedColor = safeColor;
+                //background.color = safeColor;
 
             StartCoroutine(AnimateDisarm());
         }
@@ -347,6 +364,8 @@ public class GridTile3D : MonoBehaviour
         transform.localScale = standardSize;
         //GetComponent<CanvasGroup>().alpha = 0f;
         wasFormerBomb = false;
+        triggerNextTutorialStep = false;
+        bombCanvas.SetActive(false);
     }
 
     public void AddNeighboursAtPositions(List<Vector3> positions)
@@ -364,18 +383,34 @@ public class GridTile3D : MonoBehaviour
 
         }
     }
+
+    public void FlipForTutorial()
+    {
+        Flip(false);
+    }
     #endregion
     #region Private
 
-    private void Flip()
+    private void Flip(bool hapticFeedback = true)
     {
         if (HasFlipped)
             return;
 
-        if (!IsBomb)
-            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactLight);
-        else
-            iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Failure);
+        if (hapticFeedback)
+        {
+            if (!IsBomb)
+            {
+                if (storedColor == dangerousColor)
+                    iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactMedium);
+                else if (storedColor == alertColor || storedColor == multiAlertColor || storedColor == threeBombColor)
+                    iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactHeavy);
+                else
+                    iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.ImpactLight);
+            }
+            else
+                iOSHapticFeedback.Instance.Trigger(iOSHapticFeedback.iOSFeedbackType.Failure);
+        }
+        
             
 
         if (storedColor == Color.clear)
@@ -398,20 +433,9 @@ public class GridTile3D : MonoBehaviour
         {
             GridGenerator3D.Instance.SetInteractability(false);
             StartCoroutine(AnimateBombExplosion());
-            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.LOSE);
+            bombCanvas.SetActive(true);
             return;
         }
-        else
-        {
-            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.FLIP);
-        }
-
-        if (!GameManager.Instance.IsRandomLevel && GameManager.Instance.CurrentLevel == 1)
-        {
-            StartCoroutine(HandleTutorialLevelFinished());
-            return;
-        }
-
 
         int bombsChecked = 0;
         foreach (GridTile3D bomb in neighbourBombs)
@@ -429,7 +453,6 @@ public class GridTile3D : MonoBehaviour
     {
         Confetti.Instance.Play();
         UIController.Instance.HideCurrentlyActiveTip();
-        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.WIN);
         GridGenerator3D.Instance.SetBlocksRaycasts(false);
         yield return UIController.Instance.ShowCompleteLevelText();
         GameManager.Instance.FinishTutorialLevel();
@@ -444,20 +467,40 @@ public class GridTile3D : MonoBehaviour
     private IEnumerator AnimateDisarm()
     {
         yield return new WaitUntil(() => !GridGenerator3D.Instance.IsAnimating);
+        
+        if (triggerNextTutorialStep)
+            UIController.Instance.ShowTutorialTip(3);
         if (hasAnimatedDisarm)
             yield break;
         GridGenerator3D.Instance.IsAnimating = true;
         hasAnimatedDisarm = true;
-        yield return new WaitForSeconds(1f);
-        
+        bombCanvas.gameObject.SetActive(true);
+        CanvasGroup bombCanvasGroup = bombCanvas.GetComponent<CanvasGroup>();
+        bombCanvasGroup.alpha = 0f;
+        LeanTween.alphaCanvas(bombCanvasGroup, 1f, 0.25f).setEase(LeanTweenType.easeOutSine);
+        yield return new WaitForSeconds(0.5f);
+        LeanTween.alphaCanvas(bombCanvas.GetComponent<CanvasGroup>(), 0f, 0.5f).setOnComplete(() =>
+        {
+            bombCanvas.gameObject.SetActive(false);
+            bombCanvas.GetComponent<CanvasGroup>().alpha = 1f;
+        });
 
+        LeanTween.value(gameObject, background.color, storedColor, 0.5f).setEase(LeanTweenType.easeInOutSine)
+            .setOnUpdate(
+                (Color value) => { background.color = value; });
+
+
+        yield return new WaitForSeconds(0.4f);
+        StartCoroutine(AnimateDisarmTile());
+
+        yield return new WaitForSeconds(0.1f);
+        
         Dictionary<int, List<List<GridTile3D>>> neighboursToLoop = new Dictionary<int, List<List<GridTile3D>>>();
         List<List<GridTile3D>> tiles = new List<List<GridTile3D>>();
         tiles.Add(Neighbours);
         neighboursToLoop.Add(0, tiles);
 
         bool isEnd = GameManager.Instance.BombsToDestroy == 1;
-
         int amountOfTimes = isEnd ? 14 : 3;
         List<GridTile3D> animatedTiles = new List<GridTile3D>();
         if (isEnd)
@@ -469,7 +512,6 @@ public class GridTile3D : MonoBehaviour
         {
             Confetti.Instance.Play();
             StartCoroutine(UIController.Instance.ShowCompleteLevelText());
-            AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.WIN);
             GridGenerator3D.Instance.SetBlocksRaycasts(false);
         }
 
@@ -580,6 +622,51 @@ public class GridTile3D : MonoBehaviour
         LeanTween.scaleZ(gameObject, standardSize.z, 0.25f).setEase(LeanTweenType.easeInSine);
         yield return new WaitForSeconds(0.25f);
         IsAnimating = false;
+    }
+
+    public void SetColours(Color[] coloursToSet)
+    {
+        safeColor = coloursToSet[0];
+        warningColor = coloursToSet[1];
+        dangerousColor = coloursToSet[2];
+        alertColor = coloursToSet[3];
+        multiAlertColor = coloursToSet[4];
+        threeBombColor = coloursToSet[5];
+        bombColor = coloursToSet[6];
+        startColour = coloursToSet[7];
+        bombImage.color = coloursToSet[8];
+
+        switch (colorIndex)
+        {
+            case 0:
+                storedColor = alertColor;
+                if (neighbourBombs.Count >= 3)
+                    storedColor = threeBombColor;
+                else if (neighbourBombs.Count == 2)
+                    storedColor = multiAlertColor;
+                break;
+            case 1:
+                storedColor = dangerousColor;
+                break;
+            case 2:
+                storedColor = warningColor;
+                break;
+            case 3:
+                storedColor = safeColor;
+                break;
+        }
+
+        if (IsBomb)
+        {
+            storedColor = bombColor;
+        }
+
+        if (HasFlipped)
+            background.color = storedColor;
+        else
+        {
+            background.color = startColour;
+        }
     }
     #endregion
     #endregion

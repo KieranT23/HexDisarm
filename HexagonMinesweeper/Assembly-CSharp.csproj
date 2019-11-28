@@ -75,6 +75,8 @@
     <Compile Include="Assets\Scripts\AdManager.cs" />
     <Compile Include="Assets\Scripts\AnalyticsManager.cs" />
     <Compile Include="Assets\Scripts\AudioManager.cs" />
+    <Compile Include="Assets\Scripts\ColourButton.cs" />
+    <Compile Include="Assets\Scripts\ColourManager.cs" />
     <Compile Include="Assets\Scripts\Confetti.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\GridGenerator.cs" />
@@ -92,7 +94,6 @@
     <Compile Include="Assets\Scripts\Popups\RemoveAdsPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\RestorePurchasesPopup.cs" />
     <Compile Include="Assets\Scripts\Purchaser.cs" />
-    <Compile Include="Assets\Scripts\UI\AudioButton.cs" />
     <Compile Include="Assets\Scripts\UI\LevelSelection\Level.cs" />
     <Compile Include="Assets\Scripts\UI\LevelSelection\LevelSelection.cs" />
     <Compile Include="Assets\Scripts\UI\LevelSelection\Transition.cs" />

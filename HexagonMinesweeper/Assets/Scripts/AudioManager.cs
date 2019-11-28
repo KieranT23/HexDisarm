@@ -6,21 +6,10 @@ using UnityEngine.Experimental.Animations;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
-    public enum AudioEffects
-    {
-        SELECT,
-        FLIP,
-        WIN,
-        LOSE
-    }
 
     [SerializeField] private AudioClip[] musicFiles;
 
-    [SerializeField] private AudioClip[] effects;
-
     [SerializeField] private AudioSource musicSource;
-
-    [SerializeField] private AudioSource effectSource;
 
     private int currentlyPlayingMusic = 0;
 
@@ -55,19 +44,6 @@ public class AudioManager : MonoBehaviour
         currentlyPlayingMusic = musicToPlay;
 
         musicSource.PlayOneShot(musicFiles[musicToPlay]);
-    }
-
-    public void PlayEffect(AudioEffects effect)
-    {
-        if (!PlayerInfoManager.Instance.AudioOn)
-            return;
-        float volumeScale = effect == AudioEffects.LOSE ? 1f : 1f;
-        effectSource.PlayOneShot(effects[(int)effect], volumeScale);
-    }
-
-    public void ToggleAudio(bool on)
-    {
-        effectSource.volume = on ? 1f : 0f;
     }
 
     public void ToggleMusic(bool on)

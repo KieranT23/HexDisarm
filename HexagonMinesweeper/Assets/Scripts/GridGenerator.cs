@@ -309,7 +309,10 @@ public class GridGenerator : MonoBehaviour
         {
             int level = GameManager.Instance.CurrentLevel;
             if (level == 1)
+            {
                 UIController.Instance.ShowTutorialTip(0);
+            }
+                
             else if (level == 2)
             {
                 UIController.Instance.ShowTutorialTip(1);

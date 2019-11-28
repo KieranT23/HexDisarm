@@ -8,7 +8,6 @@ public class PlayerInfoManager : MonoBehaviour
 
     private const string KEY_LEVELS_UNLOCKED = "levelsUnlocked";
     private const string KEY_TIMES_GENERATED_FEEDBACK = "timesGeneratedFeedback";
-    private const string KEY_AUDIO_ON = "audioOn";
     private const string KEY_MUSIC_ON = "musicOn";
     private const string KEY_VIBRATION_ON = "vibrationOn";
     private const string KEY_HAS_REMOVED_ADS = "hasRemovedAds";
@@ -17,6 +16,7 @@ public class PlayerInfoManager : MonoBehaviour
     private const string KEY_HAS_SHOWN_RANDOM_POPUP = "hasShownRandomPopup";
     private const string KEY_HAS_DISABLED_ANALYTICS = "hasDisabledAnalytics";
     private const string KEY_TIMES_SHOWN_REVIEW_POPUP = "timesShownReviewPopup";
+    private const string KEY_CURRENT_COLOUR_THEME = "currentColourTheme;";
 
     public int TimesGridGeneratedSinceFeedback
     {
@@ -28,12 +28,6 @@ public class PlayerInfoManager : MonoBehaviour
     {
         get { return PlayerPrefs.GetInt(KEY_LEVELS_UNLOCKED); }
         set { PlayerPrefs.SetInt(KEY_LEVELS_UNLOCKED, value);}
-    }
-
-    public bool AudioOn
-    {
-        get { return bool.Parse(PlayerPrefs.GetString(KEY_AUDIO_ON)); }
-        set { PlayerPrefs.SetString(KEY_AUDIO_ON, value.ToString());}
     }
 
     public bool MusicOn
@@ -84,6 +78,11 @@ public class PlayerInfoManager : MonoBehaviour
         set { PlayerPrefs.SetInt(KEY_TIMES_SHOWN_REVIEW_POPUP, value); }
     }
 
+    public int CurrentColourTheme
+    {
+        get { return PlayerPrefs.GetInt(KEY_CURRENT_COLOUR_THEME); }
+        set { PlayerPrefs.SetInt(KEY_CURRENT_COLOUR_THEME, value); }
+    }
 
 
     private void Awake()
@@ -99,8 +98,6 @@ public class PlayerInfoManager : MonoBehaviour
             LevelsUnlocked = 1;
         if (!PlayerPrefs.HasKey(KEY_TIMES_GENERATED_FEEDBACK))
             TimesGridGeneratedSinceFeedback = 0;
-        if (!PlayerPrefs.HasKey(KEY_AUDIO_ON))
-            AudioOn = true;
         if (!PlayerPrefs.HasKey(KEY_MUSIC_ON))
             MusicOn = true;
         if (!PlayerPrefs.HasKey(KEY_HAS_REMOVED_ADS))
@@ -117,5 +114,11 @@ public class PlayerInfoManager : MonoBehaviour
             VibrationOn = true;
         if (!PlayerPrefs.HasKey(KEY_TIMES_SHOWN_REVIEW_POPUP))
             AmountOfTimesShownReviewPopup = 0;
+        if (!PlayerPrefs.HasKey(KEY_CURRENT_COLOUR_THEME))
+            CurrentColourTheme = 0;
+
+#if UNITY_EDITOR
+        //LevelsUnlocked = 1;
+#endif
     }
 }

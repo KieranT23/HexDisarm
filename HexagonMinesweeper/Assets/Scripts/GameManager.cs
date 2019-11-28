@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
             }
                 
 
-            if (CurrentLevel == 1 || CurrentLevel == 2 || CurrentLevel == 5)
+            if (CurrentLevel == 1 || CurrentLevel == 2 || CurrentLevel == 3)
                 UIController.Instance.HideCurrentlyActiveTip();
 
             AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int) timeTakenOnLevel, triesOnLevel);

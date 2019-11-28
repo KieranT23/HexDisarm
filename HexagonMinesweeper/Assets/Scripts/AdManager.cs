@@ -38,16 +38,6 @@ public class AdManager : MonoBehaviour
 #endif
 
     }
-    private void Update()
-    {
-        /*if (Input.GetKeyDown(KeyCode.A))
-        {
-            if (Advertisement.IsReady("InGameBanner"))
-            {
-                Advertisement.Banner.Show("InGameBanner");
-            }
-        }*/
-    }
 
     public void ShowBanner()
     {

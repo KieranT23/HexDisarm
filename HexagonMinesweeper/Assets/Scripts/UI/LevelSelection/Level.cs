@@ -79,7 +79,6 @@ public class Level : MonoBehaviour
         CanvasGroup levelSelectionCanvasGroup = LevelSelection.Instance.GetComponent<CanvasGroup>();
         //levelSelectionCanvasGroup.blocksRaycasts = false;
         LevelSelection.Instance.SetBlocksRaycast(false);
-        AudioManager.Instance.PlayEffect(AudioManager.AudioEffects.SELECT);
         Color originalColor = background.color;
         LeanTween.alphaCanvas(txt_level.GetComponent<CanvasGroup>(), 0f, 0.15f).setEase(LeanTweenType.easeInSine);
         canvas.overrideSorting = true;

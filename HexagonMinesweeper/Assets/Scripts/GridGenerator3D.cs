@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 #if UNITY_IOS
 using UnityEngine.iOS;
@@ -48,6 +49,10 @@ public class GridGenerator3D : MonoBehaviour
     public bool IsGeneratingGrid { get; private set; }
     public bool IsAnimating;
 
+    public List<GridTile3D> YellowTiles;
+    public List<GridTile3D> RedTiles;
+    public List<GridTile3D> OrangeTiles;
+
 #endregion
 
 #region Private
@@ -75,7 +80,7 @@ public class GridGenerator3D : MonoBehaviour
     private List<int> LevelInfo = new List<int>();
 
     private int seed = 1;
-    private int numberOfBombsToShow = 0;
+    private int distanceFromBombToShow = 0;
     private bool hasGeneratedBefore = false;
     private List<GridTile3D> instantiatedBombs = new List<GridTile3D>();
 
@@ -134,6 +139,10 @@ public class GridGenerator3D : MonoBehaviour
 
     public IEnumerator GenerateGrid(List<int> levelInfo, bool levelCompleted = false)
     {
+        YellowTiles = new List<GridTile3D>();
+        RedTiles = new List<GridTile3D>();
+        OrangeTiles = new List<GridTile3D>();
+
         hexContent.gameObject.SetActive(true);
         if (levelCompleted)
         {
@@ -176,7 +185,7 @@ public class GridGenerator3D : MonoBehaviour
         }
 
         SetGridScale(levelInfo[0]);
-        if (GameManager.Instance.CurrentLevel == 5 && !GameManager.Instance.IsRandomLevel)
+        if ((GameManager.Instance.CurrentLevel == 2 || GameManager.Instance.CurrentLevel == 3) && !GameManager.Instance.IsRandomLevel)
             hexContent.transform.eulerAngles = new Vector3(0f, -90f, 75f);
         IsGeneratingGrid = true;
         /*if (hasGeneratedBefore)
@@ -210,10 +219,10 @@ public class GridGenerator3D : MonoBehaviour
         gridRadius = LevelInfo[0];
         numberOfBombs = LevelInfo[1];
         if (levelInfo.Count > 2)
-            numberOfBombsToShow = LevelInfo[2];
+            distanceFromBombToShow = LevelInfo[2];
         else
         {
-            numberOfBombsToShow = 0;
+            distanceFromBombToShow = 0;
         }
 
         StartCoroutine(WaitBeforeNeighbours());
@@ -342,12 +351,14 @@ public class GridGenerator3D : MonoBehaviour
         {
             int level = GameManager.Instance.CurrentLevel;
             if (level == 1)
+            {
                 UIController.Instance.ShowTutorialTip(0);
+            }
             else if (level == 2)
             {
                 UIController.Instance.ShowTutorialTip(1);
             }
-            else if (level == 5)
+            else if (level == 3)
             {
                 SetGridScale(5);
                 hexContent.transform.eulerAngles = new Vector3(0f, -90f, 75f);
@@ -360,12 +371,20 @@ public class GridGenerator3D : MonoBehaviour
 
         instantiatedBombs = new List<GridTile3D>();
         int bombsShown = 0;
+
+        
         for (int b = 0; b < gridTiles.Count; b++)
         {
+            gridTiles[b].gameObject.name = b.ToString();
             int incrementer = b;
             if (bombs.Contains(b))
             {
-                gridTiles[b].SetBomb(bombsShown < numberOfBombsToShow);
+                if (GameManager.Instance.CurrentLevel == 3 && bombsShown == 0)
+                {
+                    gridTiles[b].SetBomb(false, true);
+                }
+                else
+                    gridTiles[b].SetBomb(GameManager.Instance.CurrentLevel == 1 && !GameManager.Instance.IsRandomLevel);
                 if (bombsShown == 0)
                     StartCoroutine(UIController.Instance.AnimateInBombsRemaining());
 
@@ -374,6 +393,50 @@ public class GridGenerator3D : MonoBehaviour
                 instantiatedBombs.Add(gridTiles[b]);
             }
         }
+
+        int[] tilesNotToFlipLevel2 = new[] { 0, 1, 4, 7, 14 };
+        if (GameManager.Instance.CurrentLevel == 2)
+        {
+            for (int b = 0; b < gridTiles.Count; b++)
+            {
+                if (!tilesNotToFlipLevel2.Contains(b))
+                {
+                    gridTiles[b].FlipForTutorial();
+                }
+            }
+        }
+        else if (GameManager.Instance.CurrentLevel == 3)
+        {
+            int[] tilesToFlip = new[] { 7, 8, 9, 6, 4, 12, 15, 14};
+            for (int b = 0; b < gridTiles.Count; b++)
+            {
+                if (tilesToFlip.Contains(b))
+                {
+                    gridTiles[b].FlipForTutorial();
+                }
+            }
+        }
+
+        if (!GameManager.Instance.IsRandomLevel && GameManager.Instance.CurrentLevel > 3 && distanceFromBombToShow != 0)
+        {
+            int randomTile = 0;
+            switch (distanceFromBombToShow)
+            {
+                case 1:
+                    randomTile = Random.Range(0, RedTiles.Count);
+                    RedTiles[randomTile].FlipForTutorial();
+                    break;
+                case 2:
+                    randomTile = Random.Range(0, OrangeTiles.Count);
+                    OrangeTiles[randomTile].FlipForTutorial();
+                    break;
+                case 3:
+                    randomTile = Random.Range(0, YellowTiles.Count);
+                    YellowTiles[randomTile].FlipForTutorial();
+                    break;
+            }
+        }
+        
 
         SetInteractability(true);
         AdManager.Instance.ShowBanner();
@@ -501,6 +564,14 @@ public class GridGenerator3D : MonoBehaviour
         return background1Renderer.material.color;
     }
 
+    public void SetTileColours(Color[] coloursToSet)
+    {
+        for (int i = 0; i < unusedTiles.Count; i++)
+        {
+            unusedTiles[i].SetColours(coloursToSet);
+        }
+    }
+
     private IEnumerator CreatePool()
     {
         GridTile3D centreTile = GameObject.Instantiate(gridTilePrefab, unusedObjectsHolder);
@@ -554,6 +625,8 @@ public class GridGenerator3D : MonoBehaviour
         {
             unusedTiles[a].GetNeighbours(unusedTiles);
         }
+
+        ColourManager.Instance.SwitchTheme(PlayerInfoManager.Instance.CurrentColourTheme);
 
         unusedObjectsHolder.gameObject.SetActive(false);
         loadingCanvas.gameObject.SetActive(false);
@@ -629,6 +702,32 @@ public class GridGenerator3D : MonoBehaviour
         SetBlocksRaycasts(true);
         gridCanvasGroup.blocksRaycasts = true;*/
         yield return null;
+    }
+
+    public void AddTileToList(GridTile3D tileToAdd, int colourIndex)
+    {
+        switch (colourIndex)
+        {
+            case 0:
+                if (!RedTiles.Contains(tileToAdd))
+                    RedTiles.Add(tileToAdd);
+
+                if (YellowTiles.Contains(tileToAdd))
+                    YellowTiles.Remove(tileToAdd);
+                if (OrangeTiles.Contains(tileToAdd))
+                    OrangeTiles.Remove(tileToAdd);
+                break;
+            case 1:
+                if (!OrangeTiles.Contains(tileToAdd))
+                    OrangeTiles.Add(tileToAdd);
+                if (YellowTiles.Contains(tileToAdd))
+                    YellowTiles.Remove(tileToAdd);
+                break;
+            case 2:
+                if (!YellowTiles.Contains(tileToAdd))
+                    YellowTiles.Add(tileToAdd);
+                break;
+        }
     }
 
 
