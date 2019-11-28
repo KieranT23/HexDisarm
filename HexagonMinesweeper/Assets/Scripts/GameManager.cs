@@ -4,31 +4,65 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-
+    #region Variables
+    #region Static
+    /// <summary>
+    /// The static instance of this class
+    /// </summary>
     public static GameManager Instance;
-
+    #endregion
+    #region Public
+    /// <summary>
+    /// The amount of bombs to destroy
+    /// </summary>
     public int BombsToDestroy { get; private set; } = 1;
-
+    /// <summary>
+    /// The grid radius
+    /// </summary>
     public int GridRadius { get; private set; } = 3;
-
+    /// <summary>
+    /// The current level
+    /// </summary>
     public int CurrentLevel { get; private set; } = 1;
-
-    private List<int> levelInfo = new List<int>();
-
-    private float timeTakenOnLevel;
-
-    private int triesOnLevel = 1;
-
-    private int bombsDisarmed = 0;
-
-    private bool hasLoggedFailed;
-
+    /// <summary>
+    /// Check if it is currently a random level
+    /// </summary>
     public bool IsRandomLevel { get; private set; }
-
+    #endregion
+    #region Private
+    /// <summary>
+    /// The current level info
+    /// </summary>
+    private List<int> levelInfo = new List<int>();
+    /// <summary>
+    /// The time that has been taken on the current level
+    /// </summary>
+    private float timeTakenOnLevel;
+    /// <summary>
+    /// The amount of tries the user has taken to complete the level
+    /// </summary>
+    private int triesOnLevel = 1;
+    /// <summary>
+    /// The amount of bombs that have been disarmed on this level
+    /// </summary>
+    private int bombsDisarmed = 0;
+    /// <summary>
+    /// Check if the analytics event for failing has completed
+    /// </summary>
+    private bool hasLoggedFailed;
+    /// <summary>
+    /// The amount of random levels the user has completed this session
+    /// </summary>
     private int amountOfRandomLevelsCompleted = 0;
-
+    /// <summary>
+    /// Check if it is now counting random levels
+    /// </summary>
     private bool hasStartedCountingRandomLevels;
+    #endregion
+    #endregion
 
+    #region Methods
+    #region Unity
     private void Awake()
     {
         if (Instance == null)
@@ -43,36 +77,38 @@ public class GameManager : MonoBehaviour
     {
         timeTakenOnLevel += Time.deltaTime;
     }
-
+    #endregion
+    #region Public
+    /// <summary>
+    /// Disarm a bomb
+    /// </summary>
     public void DisarmBomb()
     {
         bombsDisarmed++;
         BombsToDestroy--;
         UIController.Instance.UpdateBombsRemaining(BombsToDestroy);
+
+        //Check if the level has been completed
         if (BombsToDestroy <= 0)
         {
-            /*if (GridGenerator.Instance.IsGeneratingGrid)
-                return;*/
             if (GridGenerator3D.Instance.IsGeneratingGrid)
                 return;
+
             if (IsRandomLevel)
             {
                 amountOfRandomLevelsCompleted++;
                 AnalyticsManager.Instance.LogRandomLevelCompleted(CurrentLevel, (int)timeTakenOnLevel);
                 PlayerInfoManager.Instance.AmountOfCompletedRandomLevels = CurrentLevel;
                 StartRandomLevel(true);
+
                 return;
             }
-                
-
-            if (CurrentLevel == 1 || CurrentLevel == 2 || CurrentLevel == 3)
-                UIController.Instance.HideCurrentlyActiveTip();
 
             AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int) timeTakenOnLevel, triesOnLevel);
             CurrentLevel++;
+
             if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
                 PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
-            //StartCoroutine(UIController.Instance.ShowCompleteLevelText());
             if (CurrentLevel == 201)
             {
                 StartCoroutine(UIController.Instance.AnimateFinalLevelFinished());
@@ -83,34 +119,46 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Trigger game over - when a user clicks on a bomb
+    /// </summary>
     public void SetGameOver()
     {
         if (!IsRandomLevel)
         {
             if (!hasLoggedFailed)
                 AnalyticsManager.Instance.LogLevelFailed(CurrentLevel, (int)timeTakenOnLevel, bombsDisarmed);
+
             hasLoggedFailed = true;
             triesOnLevel++;
             StartLevel(CurrentLevel);
+
             if (CurrentLevel >= PlayerInfoManager.Instance.LevelsUnlocked)
                 UIController.Instance.ShowSkipButton();
         }
         else
-        {
             StartRandomLevel(false);
-        }
         
     }
 
+    /// <summary>
+    /// Skip the current levle
+    /// </summary>
     public void SkipLevel()
     {
         AnalyticsManager.Instance.LogLevelSkipped(CurrentLevel, (int) timeTakenOnLevel, triesOnLevel);
         CurrentLevel++;
+
         if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
             PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
+
         StartLevel(CurrentLevel, false, true);
     }
 
+    /// <summary>
+    /// Start a random level
+    /// </summary>
+    /// <param name="levelFinished">Has a level been finished?</param>
     public void StartRandomLevel(bool levelFinished)
     {
         if (!hasStartedCountingRandomLevels)
@@ -122,15 +170,13 @@ public class GameManager : MonoBehaviour
         bombsDisarmed = 0;
         CurrentLevel = PlayerInfoManager.Instance.AmountOfCompletedRandomLevels + 1;
         Random.InitState(System.Environment.TickCount);
-        //grid size, bombs, bombsToShow, seeds
+
+        //Randomly generate the level
         int gridSize = Random.Range(6, 9);
         int bombs = Random.Range(4, 8);
         List<int> levelInfo =  new List<int> {gridSize, bombs};
-        if (!levelFinished)
-            StartCoroutine(GridGenerator3D.Instance.AnimateGridIntoView());
-        //StartCoroutine(GridGenerator.Instance.GenerateGrid(levelInfo, levelFinished));
+
         StartCoroutine(GridGenerator3D.Instance.GenerateGrid(levelInfo, levelFinished));
-        //GridGenerator3D.Instance.SetBackgroundColours(false, true);
         GridRadius = levelInfo[0];
         BombsToDestroy = levelInfo[1];
         UIController.Instance.UpdateBombsRemaining(BombsToDestroy);
@@ -139,32 +185,25 @@ public class GameManager : MonoBehaviour
         hasLoggedFailed = false;
     }
 
+    /// <summary>
+    /// Start a level
+    /// </summary>
+    /// <param name="level">The level to start</param>
+    /// <param name="levelFinished">Has a level been finished?</param>
+    /// <param name="levelSkipped">Has a level been skipped</param>
     public void StartLevel(int level, bool levelFinished = false, bool levelSkipped = false)
     {
-        //LevelSelection.Instance.gameObject.SetActive(false);
         IsRandomLevel = false;
         triesOnLevel = 1;
         timeTakenOnLevel = 0;
         bombsDisarmed = 0;
         CurrentLevel = level;
         levelInfo = Levels.AllLevels[level];
-        /*if (!levelSkipped)
-            StartCoroutine(GridGenerator.Instance.GenerateGrid(levelInfo, levelFinished));
-        else
-        {
-            StartCoroutine(GridGenerator.Instance.AnimateSkip(levelInfo));
-        }*/
+
         if (!levelSkipped)
             StartCoroutine(GridGenerator3D.Instance.GenerateGrid(levelInfo, levelFinished));
         else
-        {
             StartCoroutine(GridGenerator3D.Instance.AnimateSkip(levelInfo));
-        }
-
-        if (!levelFinished && !levelSkipped)
-            StartCoroutine(GridGenerator3D.Instance.AnimateGridIntoView());
-        //GridGenerator3D.Instance.SetBackgroundColours(false, true);
-
 
         GridRadius = levelInfo[0];
         BombsToDestroy = levelInfo[1];
@@ -174,6 +213,9 @@ public class GameManager : MonoBehaviour
         hasLoggedFailed = false;
     }
 
+    /// <summary>
+    /// Quit the current level
+    /// </summary>
     public void QuitLevel()
     {
         if (IsRandomLevel)
@@ -183,21 +225,16 @@ public class GameManager : MonoBehaviour
 
         hasStartedCountingRandomLevels = false;
     }
-
-    public void FinishTutorialLevel()
-    {
-        
-        AnalyticsManager.Instance.LogLevelCompleted(CurrentLevel, (int)timeTakenOnLevel, triesOnLevel);
-        CurrentLevel++;
-        if (CurrentLevel > PlayerInfoManager.Instance.LevelsUnlocked)
-            PlayerInfoManager.Instance.LevelsUnlocked = CurrentLevel;
-        //StartCoroutine(UIController.Instance.ShowCompleteLevelText());
-        StartLevel(CurrentLevel, true);
-    }
-
+    #endregion
+    #region Private
+    /// <summary>
+    /// Wait before resetting the fail logging occurs again - prevents events being fired multiple times
+    /// </summary>
     private IEnumerator WaitForLogReset()
     {
         yield return new WaitForSeconds(2f);
         hasLoggedFailed = true;
     }
+    #endregion
+    #endregion
 }

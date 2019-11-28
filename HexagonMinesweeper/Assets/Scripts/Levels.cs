@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// All the levels
+/// </summary>
 public static class Levels
 {
     public static Dictionary<int, List<int>> AllLevels = new Dictionary<int, List<int>>()

@@ -6,14 +6,27 @@ using UnityEngine.Purchasing;
 
 public class Purchaser : MonoBehaviour, IStoreListener
 {
+    #region Variables
+    /// <summary>
+    /// The static instance of this class
+    /// </summary>
     public static Purchaser Instance;
-    private static IStoreController m_StoreController;          // The Unity Purchasing system.
-    private static IExtensionProvider m_StoreExtensionProvider; // The store-specific Purchasing subsystems.
-
+    /// <summary>
+    /// The Unity Purchasing system.
+    /// </summary>
+    private static IStoreController m_StoreController;
+    /// <summary>
+    /// The store-specific Purchasing subsystems.
+    /// </summary>
+    private static IExtensionProvider m_StoreExtensionProvider;
+    /// <summary>
+    /// The no ads product
+    /// </summary>
     private string noAdsProduct = "remove_ads";
+    #endregion
 
-    private bool isRestoringAds;
-
+    #region Methods
+    #region Unity
     private void Awake()
     {
         if (Instance == null)
@@ -34,7 +47,8 @@ public class Purchaser : MonoBehaviour, IStoreListener
             InitializePurchasing();
         }
     }
-
+    #endregion
+    #region Public
     /// <summary>
     /// This is called when the purchasing has been initialised
     /// </summary>
@@ -177,7 +191,9 @@ public class Purchaser : MonoBehaviour, IStoreListener
                 Application.platform));
         }
     }
+    #endregion
 
+    #region Private
     /// <summary>
     /// Check if the purchasing is initialsied
     /// </summary>
@@ -226,4 +242,6 @@ public class Purchaser : MonoBehaviour, IStoreListener
             Debug.LogError("BuyProductID FAIL. Not initialized.");
         }  
     }
+    #endregion
+    #endregion
 }

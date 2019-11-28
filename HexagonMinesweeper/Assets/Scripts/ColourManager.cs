@@ -4,20 +4,45 @@ using UnityEngine;
 
 public class ColourManager : MonoBehaviour
 {
+    #region Variables
+    /// <summary>
+    /// The static instance of this script
+    /// </summary>
     public static ColourManager Instance;
 
-    [SerializeField] private Color[] baseColours;
+    /// <summary>
+    /// The base colours that are used
+    /// </summary>
+    [SerializeField]
+    private Color[] baseColours;
+    /// <summary>
+    /// The pink theme
+    /// </summary>
+    [SerializeField]
+    private Color[] pinkTheme;
+    /// <summary>
+    /// The hot cold them
+    /// </summary>
+    [SerializeField]
+    private Color[] hotColdTheme;
+    /// <summary>
+    /// The blue theme
+    /// </summary>
+    [SerializeField]
+    private Color[] blueTheme;
+    /// <summary>
+    /// The green theme
+    /// </summary>
+    [SerializeField]
+    private Color[] greenTheme;
 
-    [SerializeField] private Color[] pinkTheme;
-
-    [SerializeField] private Color[] hotColdTheme;
-
-    [SerializeField] private Color[] blueTheme;
-
-    [SerializeField] private Color[] greenTheme;
-
+    /// <summary>
+    /// The total amout of colour themes
+    /// </summary>
     public int AmountOfColorThemes { get; private set; } = 5;
+    #endregion
 
+    #region Methods
     private void Awake()
     {
         if (Instance == null)
@@ -27,12 +52,10 @@ public class ColourManager : MonoBehaviour
 
         
     }
-
-    private void Start()
-    {
-        //SwitchTheme(PlayerInfoManager.Instance.CurrentColourTheme);
-    }
-
+    /// <summary>
+    /// Switch colour theme
+    /// </summary>
+    /// <param name="colourTheme">The theme to switch to</param>
     public void SwitchTheme(int colourTheme)
     {
         Color[] currentTheme = baseColours;
@@ -58,5 +81,5 @@ public class ColourManager : MonoBehaviour
         GridGenerator3D.Instance.SetTileColours(currentTheme);
         PlayerInfoManager.Instance.CurrentColourTheme = colourTheme;
     }
-
+    #endregion
 }
