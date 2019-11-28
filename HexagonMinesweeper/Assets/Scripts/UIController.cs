@@ -224,6 +224,7 @@ public class UIController : MonoBehaviour
         if (isShown)
             yield break;
         isShown = true;
+        menuButtons.gameObject.SetActive(true);
         ResetUI();
         canvasGroup.blocksRaycasts = true;
         LeanTween.value(gameObject, img_currentLevelBackground.anchoredPosition, new Vector2(-50f, -50f), 0.25f)
