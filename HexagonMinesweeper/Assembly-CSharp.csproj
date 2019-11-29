@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\GridTile3D.cs" />
     <Compile Include="Assets\Scripts\Levels.cs" />
     <Compile Include="Assets\Scripts\PlayerInfoManager.cs" />
+    <Compile Include="Assets\Scripts\Popups\CreditsPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\DataCollectionPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\FeedbackPopup.cs" />
     <Compile Include="Assets\Scripts\Popups\PopupBase.cs" />

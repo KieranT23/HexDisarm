@@ -42,6 +42,12 @@ public class PopupManager : MonoBehaviour
     private DataCollectionPopup dataCollectionPopup;
 
     /// <summary>
+    /// The credits popup
+    /// </summary>
+    [SerializeField]
+    private CreditsPopup creditsPopup;
+
+    /// <summary>
     /// The dim image
     /// </summary>
     [SerializeField]
@@ -115,6 +121,16 @@ public class PopupManager : MonoBehaviour
         IsShowingPopup = true;
         dataCollectionPopup.gameObject.SetActive(true);
         dataCollectionPopup.Init();
+    }
+
+    /// <summary>
+    /// Show the credits popup
+    /// </summary>
+    public void ShowCreditsPopup()
+    {
+        IsShowingPopup = true;
+        creditsPopup.gameObject.SetActive(true);
+        creditsPopup.Init();
     }
 
     /// <summary>
