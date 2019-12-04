@@ -196,10 +196,25 @@ public class GridTile3D : MonoBehaviour
             Vector3 pos = transform.localPosition;
             newPos = pos + positions[i];
 
+            Vector3 newVector3 = new Vector3(float.Parse(newPos.x.ToString("F2")), newPos.y, float.Parse(newPos.z.ToString("F2")));
+
             //Using GameObject.Find instead of searching for a vector 3 in a list as this is quicker
-            GameObject neighbourObj = GameObject.Find(newPos.ToString());
+            GameObject neighbourObj = GameObject.Find(newVector3.ToString());
             if (neighbourObj != null)
                 Neighbours.Add(neighbourObj.GetComponent<GridTile3D>());
+            else
+            {
+                //Check for error - usually occurs in the corners
+                neighbourObj = GameObject.Find(new Vector3(newVector3.x, newVector3.y, newVector3.z - 0.1f).ToString());
+                if (neighbourObj != null)
+                    Neighbours.Add(neighbourObj.GetComponent<GridTile3D>());
+                else
+                {
+                    neighbourObj = GameObject.Find(new Vector3(newVector3.x, newVector3.y, newVector3.z + 0.1f).ToString());
+                    if (neighbourObj != null)
+                        Neighbours.Add(neighbourObj.GetComponent<GridTile3D>());
+                }
+            }
         }
     }
     /// <summary>

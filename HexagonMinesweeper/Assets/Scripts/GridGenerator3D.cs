@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions.Comparers;
+using UnityEngine.Experimental.PlayerLoop;
+
 #if UNITY_IOS
 using UnityEngine.iOS;
 #endif
@@ -411,7 +414,6 @@ public class GridGenerator3D : MonoBehaviour
         instantiatedObject.Position = pos;
         unusedTiles.Add(instantiatedObject);
         instantiatedObject.name = pos.ToString();
-
     }
 
     /// <summary>
@@ -473,7 +475,6 @@ public class GridGenerator3D : MonoBehaviour
         //Spawn the bombs
         for (int b = 0; b < gridTiles.Count; b++)
         {
-            gridTiles[b].gameObject.name = b.ToString();
             int incrementer = b;
             if (bombs.Contains(b))
             {
@@ -664,7 +665,10 @@ public class GridGenerator3D : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         for (int a = 0; a < unusedTiles.Count; a++)
+        {
             unusedTiles[a].GetNeighbours(unusedTiles);
+        }
+            
 
         ColourManager.Instance.SwitchTheme(PlayerInfoManager.Instance.CurrentColourTheme);
 
